@@ -369,11 +369,11 @@ function viewHome() {
 }
 
 function backupNag() {
-  if (!S.works.length) return '';
+  if (!S.works.length && !S.doctors.length && !S.payments.length) return '';
   let last = null; try { last = localStorage.getItem(KEY + '-backup'); } catch {}
   const days = last ? (Date.now() - Date.parse(last)) / 864e5 : 999;
   if (days < 7) return '';
-  return `<div class="offline row between"><span>${last ? 'صرلك أسبوع ما عملت نسخة احتياطية' : 'اعمل نسخة احتياطية عشان ما تضيع بياناتك لو صار إشي للتلفون'}</span><button class="btn ghost" style="padding:6px 12px" data-act="backup">نسخة</button></div>`;
+  return `<div class="offline row between"><span>${last ? 'صرلك أسبوع ما عملت نسخة احتياطية' : 'اعمل نسخة احتياطية هلأ — لو انمسحت الأيقونة بتروح البيانات'}</span><button class="btn ghost" style="padding:6px 12px" data-act="backup">نسخة</button></div>`;
 }
 function workRow(w, showDoc = true) {
   const d = docById(w.doctorId);
