@@ -224,10 +224,11 @@ const waLink = (phone, text) => { const n = waNumber(phone); return `https://wa.
 function stats(doctorId) {
   const works = S.works.filter(w => w.doctorId === doctorId);
   const pays = S.payments.filter(p => p.doctorId === doctorId);
-  const billed = works.reduce((a, w) => a + n2(w.total), 0);
+  const d = docById(doctorId), opening = n2(d && d.openingBalance);
+  const billed = works.reduce((a, w) => a + n2(w.total), 0) + opening;
   const paid = pays.reduce((a, p) => a + n2(p.amount), 0);
   const open = works.filter(w => !w.invoiceId);
-  return { works, pays, billed, paid, balance: n2(billed - paid), open, openTotal: open.reduce((a, w) => a + n2(w.total), 0) };
+  return { works, pays, billed, opening, openingDate: (d && d.openingDate) || '', paid, balance: n2(billed - paid), open, openTotal: open.reduce((a, w) => a + n2(w.total), 0) };
 }
 
 function toast(msg) {
@@ -397,7 +398,8 @@ function viewDoctor() {
   const st = stats(d.id);
   const tab = route.tab;
   let body = '';
-  if (tab === 'works') body = st.works.length ? st.works.map(w => workRow(w, false)).join('') : `<div class="empty"><b>ما في شغل مسجّل</b>اضغط «سجّل شغل» تحت.</div>`;
+  const openRow = st.opening ? `<button class="item" data-act="editDoctor"><span class="av" style="border-radius:10px;background:var(--warn-bg);color:var(--warn)">⏳</span><span class="main"><span class="name">حساب قديم</span><span class="sub">لغاية <span class="num">${esc(fmtDate(st.openingDate))}</span>${d.openingNote ? ' · ' + esc(d.openingNote) : ''}</span></span><span class="amt">${M(st.opening)}</span></button>` : '';
+  if (tab === 'works') body = (st.works.length ? st.works.map(w => workRow(w, false)).join('') : (st.opening ? '' : `<div class="empty"><b>ما في شغل مسجّل</b>اضغط «سجّل شغل» تحت.</div>`)) + openRow;
   if (tab === 'pays') body = st.pays.length ? st.pays.map(payRow).join('') : `<div class="empty"><b>ما في دفعات</b>لما يدفعلك اضغط «سجّل دفعة».</div>`;
   if (tab === 'docs') { const sc = MEDIA.list.filter(m => m.kind === 'scan' && m.doctorId === d.id); body = sc.length ? `<div class="mgrid" style="padding:8px">${sc.map(m => `<button class="mcell" data-scan="${esc(m.id)}"><img src="${mUrl(m)}" alt=""><span class="mcap">${esc(fmtDate(new Date(m.createdAt).toISOString().slice(0, 10)))}</span></button>`).join('')}</div>` : `<div class="empty"><b>ما في أوراق</b>اضغط «امسح ورقة» وصوّر ورقة الشغل.</div>`; }
   if (tab === 'invs') { const invs = S.invoices.filter(i => i.doctorId === d.id); body = invs.length ? invs.map(i => invRow(i, false)).join('') : `<div class="empty">لسا ما بعتتله فاتورة</div>`; }
@@ -411,6 +413,7 @@ function viewDoctor() {
       <div class="paid"><span>دفع</span><b>${M(st.paid)}</b></div>
       <div class="due"><span>${st.balance < 0 ? 'إله رصيد' : 'باقي عليه'}</span><b>${M(Math.abs(st.balance))}</b></div>
     </div>
+    ${st.opening ? `<p class="note" style="margin:0">منها حساب قديم ${M(st.opening)}</p>` : `<button class="btn ghost" data-act="editDoctor" style="padding:6px 12px;justify-self:start;font-size:13px">+ ضيف حساب قديم</button>`}
     <div class="pbar" title="دفع ${st.billed ? Math.round(st.paid / st.billed * 100) : 0}%"><i style="width:${st.billed ? Math.min(100, st.paid / st.billed * 100) : 0}%"></i></div>
     <div class="row between note"><span>دفع <b class="num">${st.billed ? Math.min(100, Math.round(st.paid / st.billed * 100)) : 0}%</b> من الحساب</span><span>${st.pays[0] ? 'آخر دفعة: <span class="num">' + esc(fmtDate(st.pays[0].date)) + '</span>' : 'ما دفع لسا'}</span></div>
     ${oldestUnpaidDays(d.id) > 30 ? `<button class="offline row between" data-act="remind" style="border:0;width:100%;cursor:pointer;text-align:start"><span>⚠️ في حساب متأخر من <b class="num">${oldestUnpaidDays(d.id)}</b> يوم</span><b>ذكّره</b></button>` : ''}
@@ -580,13 +583,22 @@ function doctorSheet(d) {
     <label class="f">اسم الدكتور<input id="dName" required placeholder="مثلاً: أحمد الخطيب" value="${esc(d?.name)}"></label>
     <label class="f">العيادة / المنطقة<input id="dClinic" placeholder="مثلاً: عيادة الابتسامة — عبدون" value="${esc(d?.clinic)}"></label>
     <label class="f">رقم الواتس<input id="dPhone" inputmode="tel" placeholder="07XXXXXXXX" value="${esc(d?.phone)}"></label>
+    <div class="dochead" style="padding:12px;gap:10px;background:var(--bg)">
+      <b style="font-size:14px">حساب قديم (قبل ما تبلّش بالتطبيق)</b>
+      <div class="two">
+        <label class="f">المبلغ اللي عليه (${esc(cur())})<input id="dOpen" type="number" inputmode="decimal" step="any" placeholder="0" value="${esc(d?.openingBalance || '')}"></label>
+        <label class="f">لغاية تاريخ<input id="dOpenDate" type="date" value="${esc(d?.openingDate || today())}"></label>
+      </div>
+      <label class="f">ملاحظة (اختياري)<input id="dOpenNote" placeholder="مثلاً: حساب دفتر ٢٠٢٥" value="${esc(d?.openingNote)}"></label>
+      <p class="note" style="margin:0">بيندمج مع الشغل الجديد، وبيطلع بالفاتورة «رصيد سابق». إذا إله رصيد عندك اكتب المبلغ بالسالب.</p>
+    </div>
     <button class="btn primary">احفظ</button>
     ${d ? `<div class="confirm" id="delWrap"><button type="button" class="btn danger" id="delBtn">حذف الدكتور</button></div>` : ''}
     <button type="button" class="btn ghost" data-close>إلغاء</button>
   </form>`, sh => {
     sh.querySelector('#f').onsubmit = async e => {
       e.preventDefault();
-      const data = { name: $('#dName').value.trim(), clinic: $('#dClinic').value.trim(), phone: $('#dPhone').value.trim(), createdAt: d?.createdAt || Date.now() };
+      const data = { name: $('#dName').value.trim(), clinic: $('#dClinic').value.trim(), phone: $('#dPhone').value.trim(), openingBalance: n2($('#dOpen').value), openingDate: $('#dOpenDate').value || today(), openingNote: $('#dOpenNote').value.trim(), createdAt: d?.createdAt || Date.now() };
       if (!data.name) return;
       const id = await save('doctors', d?.id, data);
       closeSheet(); toast('انحفظ');
@@ -743,6 +755,7 @@ function priceFor(doctorId, type) {
 function oldestUnpaidDays(doctorId) {
   const st = stats(doctorId); if (st.balance <= 0) return 0;
   let left = st.paid; const ws = st.works.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  if (st.opening > 0) { left -= st.opening; if (left < 0) return Math.floor((Date.now() - Date.parse(st.openingDate || today())) / 864e5); }
   for (const w of ws) { left -= n2(w.total); if (left < 0) return Math.floor((Date.now() - Date.parse(w.date)) / 864e5); }
   return 0;
 }
