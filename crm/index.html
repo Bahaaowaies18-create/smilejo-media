@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>فواتير الدكاترة</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="فواتير">
+<meta name="theme-color" content="#014FC9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column phone app — blue brand header, scrolling view, fixed bottom tab bar with a centre "+" button, bottom sheets for every form. */
+:root{
+  --blue:#014FC9; --blue-ink:#0B3E94; --yellow:#F9C03C; --dark:#23232A;
+  --bg:#F1F3F8; --surface:#FFFFFF; --fg:#23232A; --muted:#646a7a; --line:#dfe3ec;
+  --chip:#e8eefb; --good:#1c8a4f; --good-bg:#e3f4ea; --warn:#a86a00; --warn-bg:#fdf1d6; --bad:#c23b3b;
+  --wa:#1f9d55;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17171c; --surface:#23232A; --fg:#F7F7F7; --muted:#a3a7b3; --line:#363641;
+  --chip:#1d2a45; --good:#5fd394; --good-bg:#16332a; --warn:#f9c03c; --warn-bg:#3a3018; --bad:#ff8080;
+  --blue-ink:#8db4ff; --wa:#38c172; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#17171c; --surface:#23232A; --fg:#F7F7F7; --muted:#a3a7b3; --line:#363641;
+  --chip:#1d2a45; --good:#5fd394; --good-bg:#16332a; --warn:#f9c03c; --warn-bg:#3a3018; --bad:#ff8080;
+  --blue-ink:#8db4ff; --wa:#38c172; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body);direction:rtl;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+
+header.top{position:sticky;top:0;padding-top:calc(10px + env(safe-area-inset-top,0px)) !important;z-index:5;background:var(--blue);color:#fff;
+  padding:10px 16px;display:flex;align-items:center;gap:10px}
+header.top img{height:44px;width:auto}
+header.top .t{font:600 17px var(--f-display)}
+header.top .s{font-size:12px;opacity:.8}
+header.top .back{margin-inline-start:auto;background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:10px;padding:6px 12px;cursor:pointer}
+
+main{padding:16px 16px calc(96px + env(safe-area-inset-bottom,0px));max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h2{font:600 15px var(--f-display);margin:0;color:var(--muted);letter-spacing:.2px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+
+.hero{background:var(--dark);color:#F7F7F7;border-radius:18px;padding:18px;display:grid;gap:14px}
+.hero .lbl{font-size:13px;opacity:.75}
+.hero .big{font:700 34px var(--f-display);line-height:1.1}
+.hero .big small{font-size:15px;font-weight:500;opacity:.8;margin-inline-start:4px}
+.hero .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero .split div{background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px}
+.hero .split b{display:block;font:600 18px var(--f-display);color:var(--yellow)}
+
+.list{background:var(--surface);border-radius:var(--r);border:1px solid var(--line);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer;background:none;border-inline:0;border-bottom:0;width:100%;text-align:start}
+.item:first-child{border-top:0}
+.item:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.item .main{flex:1;min-width:0}
+.item .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .amt{font:600 16px var(--f-display);white-space:nowrap}
+.av{width:40px;height:40px;border-radius:50%;background:var(--chip);color:var(--blue-ink);display:grid;place-items:center;font:600 16px var(--f-display);flex:none}
+.pill{font-size:12px;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.due{background:var(--warn-bg);color:var(--warn)}
+.pill.ok{background:var(--good-bg);color:var(--good)}
+.pill.inv{background:var(--chip);color:var(--blue-ink)}
+.empty{padding:22px 16px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font:600 16px var(--f-display);margin-bottom:4px}
+
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.wa{background:var(--wa);color:#fff}
+.btn.ghost{background:var(--chip);color:var(--blue-ink)}
+.btn.danger{background:none;color:var(--bad);border:1px solid currentColor}
+.btn.full{width:100%}
+.btn svg{width:20px;height:20px;flex:none}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+
+.dochead{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:12px}
+.dochead .nm{font:700 20px var(--f-display)}
+.dochead .meta{font-size:13px;color:var(--muted)}
+.bal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bal div{background:var(--bg);border-radius:12px;padding:8px 10px}
+.bal span{font-size:12px;color:var(--muted);display:block}
+.bal b{font:600 15px var(--f-display);white-space:nowrap}
+.bal .due b{color:var(--warn)}
+
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs button{flex:1;border:0;background:none;padding:8px;border-radius:9px;cursor:pointer;color:var(--muted);font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
+
+nav.bar{position:fixed;inset-inline:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:1fr 1fr 76px 1fr 1fr;align-items:end}
+nav.bar button{background:none;border:0;cursor:pointer;color:var(--muted);display:grid;justify-items:center;gap:2px;font-size:11px;padding:4px 0}
+nav.bar button svg{width:24px;height:24px}
+nav.bar button[aria-current="page"]{color:var(--blue-ink)}
+nav.bar .fab{width:58px;height:58px;border-radius:50%;background:var(--yellow);color:var(--dark);justify-self:center;margin-top:-26px;
+  display:grid;place-items:center;box-shadow:0 6px 18px rgba(1,79,201,.28);font-size:0}
+nav.bar .fab svg{width:30px;height:30px}
+
+.scrim{position:fixed;inset:0;background:rgba(15,18,30,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grip{width:40px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 0}
+.sheet h3{margin:0;font:600 18px var(--f-display)}
+label.f{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+label.f input,label.f select,label.f textarea{padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:16px;width:100%;min-width:0}
+label.f input:focus,label.f select:focus,label.f textarea:focus{outline:2px solid var(--blue);border-color:transparent}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:6px 12px;cursor:pointer;font-size:13px}
+.total-line{display:flex;justify-content:space-between;align-items:center;background:var(--chip);border-radius:12px;padding:10px 14px;color:var(--blue-ink);font-weight:600}
+.total-line b{font:700 20px var(--f-display)}
+
+.invoice{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg)}
+.invoice .ih{background:var(--blue);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.invoice .ih b{font:600 16px var(--f-display)}
+.invoice table{width:100%;border-collapse:collapse;font-size:14px}
+.invoice td{padding:8px 14px;border-top:1px solid var(--line);vertical-align:top}
+.invoice td:last-child{text-align:left;white-space:nowrap}
+.invoice tr.sum td{font-weight:600}
+.invoice tr.due td{font:700 17px var(--f-display);color:var(--blue-ink);background:var(--chip)}
+.note{font-size:13px;color:var(--muted)}
+.toast{position:fixed;bottom:calc(92px + env(safe-area-inset-bottom,0px));inset-inline:16px;margin:auto;max-width:420px;background:var(--dark);color:#F7F7F7;
+  padding:12px 16px;border-radius:12px;z-index:30;text-align:center;font-weight:500}
+.offline{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:14px}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+</style>
+</head><body>
+
+<header class="top">
+  <img id="logo" alt="SMILE_JO" src="data:image/webp;base64,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">
+  <div><div class="t" id="hTitle">فواتير الدكاترة</div><div class="s" id="hSub">SMILE_JO</div></div>
+  <button class="back" id="backBtn" hidden>رجوع</button>
+</header>
+
+<main id="view"></main>
+
+<nav class="bar" aria-label="التنقل">
+  <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>الرئيسية</button>
+  <button data-go="doctors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7"/><path d="M17 4a4 4 0 0 1 0 8M22 21c0-3-1.5-5.5-4-6.5"/></svg>الدكاترة</button>
+  <button class="fab" id="fab" aria-label="سجّل شغل جديد"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button data-go="invoices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/></svg>الفواتير</button>
+  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>الإعدادات</button>
+</nav>
+
+<script>
+(() => {
+const WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.2-.2-.5-.3z"/></svg>';
+
+const S = { doctors: [], works: [], payments: [], invoices: [], settings: {}, ready: 1, offline: false };
+const KEY = 'smilejo-crm-v1';
+const COLS = { doctors: 'doctors', works: 'works', payments: 'payments', invoices: 'invoices' };
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+let route = { name: 'home', id: null, tab: 'works' };
+let searchQ = '';
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const n2 = v => Math.round((+v || 0) * 1000) / 1000;
+const cur = () => S.settings.currency || 'د.أ';
+const money = v => { const x = n2(v); return x.toLocaleString('en-US', { maximumFractionDigits: 2 }); };
+const M = v => `<span class="num">${money(v)}</span> ${esc(cur())}`;
+const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+const fmtDate = s => { if (!s) return ''; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+const shortDate = s => { if (!s) return ''; const [, m, d] = s.split('-'); return `${d}/${m}`; };
+const monthKey = s => (s || '').slice(0, 7);
+const initial = name => (String(name || '؟').replace(/^(د\.?|دكتور|دكتورة)\s*/, '').trim()[0] || '؟');
+const strip = o => { const { id, ...rest } = o; return rest; };
+const docById = id => S.doctors.find(d => d.id === id);
+const docName = d => d ? (/^(د\.|د |دكتور)/.test(d.name) ? d.name : 'د. ' + d.name) : 'دكتور محذوف';
+function waNumber(p) {
+  let x = String(p || '').replace(/[^\d+]/g, '');
+  if (!x) return '';
+  if (x.startsWith('+')) x = x.slice(1);
+  if (x.startsWith('00')) x = x.slice(2);
+  if (x.startsWith('07') && x.length === 10) x = '962' + x.slice(1);
+  else if (x.startsWith('7') && x.length === 9) x = '962' + x;
+  return x;
+}
+const waLink = (phone, text) => { const n = waNumber(phone); return `https://wa.me/${n}?text=${encodeURIComponent(text)}`; };
+
+function stats(doctorId) {
+  const works = S.works.filter(w => w.doctorId === doctorId);
+  const pays = S.payments.filter(p => p.doctorId === doctorId);
+  const billed = works.reduce((a, w) => a + n2(w.total), 0);
+  const paid = pays.reduce((a, p) => a + n2(p.amount), 0);
+  const open = works.filter(w => !w.invoiceId);
+  return { works, pays, billed, paid, balance: n2(billed - paid), open, openTotal: open.reduce((a, w) => a + n2(w.total), 0) };
+}
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; t.setAttribute('role', 'status');
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+async function copyText(text, fallbackEl) {
+  try { await navigator.clipboard.writeText(text); toast('انسخ النص'); }
+  catch { if (fallbackEl) { fallbackEl.hidden = false; fallbackEl.focus(); fallbackEl.select(); } toast('حدّد النص وانسخه يدوياً'); }
+}
+
+/* ---------- data ---------- */
+const byDateDesc = (a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0);
+function sortAll() {
+  S.doctors.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+  S.works.sort(byDateDesc); S.payments.sort(byDateDesc);
+  S.invoices.sort((a, b) => (parseInt(b.number, 10) || 0) - (parseInt(a.number, 10) || 0));
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY) || '{}');
+    for (const k of Object.keys(COLS)) S[k] = Array.isArray(d[k]) ? d[k] : [];
+    S.settings = d.settings || { businessName: 'SMILE_JO', currency: 'د.أ', footer: 'شكراً لثقتكم بـ SMILE_JO', prices: {} };
+  } catch { S.offline = true; }
+  sortAll();
+}
+function persist() {
+  const d = { v: 1, savedAt: new Date().toISOString(), settings: S.settings };
+  for (const k of Object.keys(COLS)) d[k] = S[k];
+  try { localStorage.setItem(KEY, JSON.stringify(d)); return true; }
+  catch { toast('ما انحفظ — ذاكرة التلفون ممتلية'); return false; }
+}
+async function save(col, id, data) {
+  if (col === 'settings') { S.settings = { ...data }; }
+  else {
+    id = id || newId();
+    const arr = S[col], i = arr.findIndex(x => x.id === id), rec = { ...data, id };
+    if (i >= 0) arr[i] = rec; else arr.push(rec);
+    sortAll();
+  }
+  persist(); render();
+  return id;
+}
+async function remove(col, id) { S[col] = S[col].filter(x => x.id !== id); persist(); render(); }
+
+/* ---------- backup ---------- */
+function backupJson() { const d = JSON.parse(localStorage.getItem(KEY) || '{}'); d.exportedAt = new Date().toISOString(); return JSON.stringify(d, null, 1); }
+async function exportBackup() {
+  const name = `فواتير-نسخة-${today()}.json`;
+  const blob = new Blob([backupJson()], { type: 'application/json' });
+  const file = new File([blob], name, { type: 'application/json' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); markBackup(); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); markBackup();
+}
+function markBackup() { try { localStorage.setItem(KEY + '-backup', new Date().toISOString()); } catch {} render(); }
+function importBackup(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || !Array.isArray(d.doctors)) throw 0;
+      openSheet(`<h3>ترجيع نسخة احتياطية</h3><p style="margin:0">النسخة فيها ${d.doctors.length} دكتور و${(d.works || []).length} شغل. البيانات الحالية رح تتبدّل فيها.</p>
+        <button class="btn primary" id="yes">آه، رجّعها</button><button class="btn ghost" data-close>إلغاء</button>`, sh => {
+        sh.querySelector('#yes').onclick = () => {
+          for (const k of Object.keys(COLS)) S[k] = Array.isArray(d[k]) ? d[k] : [];
+          S.settings = d.settings || {}; sortAll(); persist(); closeSheet(); render(); toast('رجعت البيانات');
+        };
+      });
+    } catch { toast('هاد الملف مش نسخة احتياطية من التطبيق'); }
+  };
+  r.readAsText(file);
+}
+
+/* ---------- views ---------- */
+function render() {
+  const v = $('#view');
+  document.querySelectorAll('nav.bar [data-go]').forEach(b => b.setAttribute('aria-current', b.dataset.go === route.name || (route.name === 'doctor' && b.dataset.go === 'doctors') ? 'page' : 'false'));
+  $('#backBtn').hidden = route.name !== 'doctor';
+  $('#hTitle').textContent = 'فواتير الدكاترة';
+  $('#hSub').textContent = S.settings.businessName || 'SMILE_JO';
+  let html = '';
+  if (S.offline) html += `<div class="offline">التلفون مانع الحفظ (ممكن تصفّح خاص). افتح التطبيق من أيقونته على الشاشة.</div>`;
+  if (route.name === 'home') html += viewHome();
+  else if (route.name === 'doctors') html += viewDoctors();
+  else if (route.name === 'doctor') html += viewDoctor();
+  else if (route.name === 'invoices') html += viewInvoices();
+  else if (route.name === 'settings') html += viewSettings();
+  const keepSearch = route.name === 'doctors' && document.activeElement && document.activeElement.id === 'q';
+  if (keepSearch) { $('#docList').innerHTML = doctorRows(); return; }
+  v.innerHTML = html;
+  if (route.name === 'settings') fillSettings();
+}
+
+function doctorRow(d) {
+  const st = stats(d.id);
+  const pill = st.balance > 0 ? `<span class="pill due">عليه ${M(st.balance)}</span>` : st.balance < 0 ? `<span class="pill ok">له ${M(-st.balance)}</span>` : `<span class="pill ok">خالص</span>`;
+  return `<button class="item" data-doc="${esc(d.id)}"><span class="av">${esc(initial(d.name))}</span>
+    <span class="main"><span class="name">${esc(docName(d))}</span><span class="sub">${esc(d.clinic || '')}${d.clinic && st.open.length ? ' · ' : ''}${st.open.length ? st.open.length + ' شغل مش مفوتر' : ''}</span></span>${pill}</button>`;
+}
+function doctorRows() {
+  const q = searchQ.trim();
+  const list = S.doctors.filter(d => !q || (d.name + ' ' + (d.clinic || '') + ' ' + (d.phone || '')).includes(q));
+  if (!S.doctors.length) return `<div class="empty"><b>لسا ما ضفت ولا دكتور</b>اضغط «دكتور جديد» وحط اسمه ورقم الواتس تبعه.</div>`;
+  if (!list.length) return `<div class="empty">ما في دكتور بهالاسم</div>`;
+  return list.map(doctorRow).join('');
+}
+
+function viewHome() {
+  const mk = monthKey(today());
+  const totalDue = S.doctors.reduce((a, d) => a + Math.max(0, stats(d.id).balance), 0);
+  const monthWork = S.works.filter(w => monthKey(w.date) === mk).reduce((a, w) => a + n2(w.total), 0);
+  const monthPaid = S.payments.filter(p => monthKey(p.date) === mk).reduce((a, p) => a + n2(p.amount), 0);
+  const owing = S.doctors.map(d => ({ d, st: stats(d.id) })).filter(x => x.st.balance > 0 || x.st.open.length).sort((a, b) => b.st.balance - a.st.balance);
+  const recent = S.works.slice(0, 6);
+  const monthName = new Date().toLocaleDateString('ar-JO-u-nu-latn', { month: 'long' });
+  return `
+  <section class="hero" aria-label="الملخص">
+    <div><div class="lbl">المطلوب من كل الدكاترة</div><div class="big"><span class="num">${money(totalDue)}</span><small>${esc(cur())}</small></div></div>
+    <div class="split">
+      <div><span class="lbl">شغل شهر ${esc(monthName)}</span><b class="num">${money(monthWork)}</b></div>
+      <div><span class="lbl">قبضت بشهر ${esc(monthName)}</span><b class="num">${money(monthPaid)}</b></div>
+    </div>
+  </section>
+  ${S.doctors.length ? '' : `<div class="list"><div class="empty"><b>أهلاً فيك 👋</b>ابدأ بإضافة أول دكتور، بعدين سجّل الشغل من زر <b style="display:inline">+</b> الأصفر، ولما تخلص ابعتله الفاتورة على الواتس.</div><div style="padding:0 14px 14px"><button class="btn primary full" data-act="newDoctor">+ دكتور جديد</button></div></div>`}
+  ${backupNag()}
+  ${owing.length ? `<div class="row between"><h2>دكاترة عليهم حساب</h2></div><div class="list">${owing.map(x => doctorRow(x.d)).join('')}</div>` : ''}
+  ${recent.length ? `<h2>آخر شغل</h2><div class="list">${recent.map(workRow).join('')}</div>` : ''}`;
+}
+
+function backupNag() {
+  if (!S.works.length) return '';
+  let last = null; try { last = localStorage.getItem(KEY + '-backup'); } catch {}
+  const days = last ? (Date.now() - Date.parse(last)) / 864e5 : 999;
+  if (days < 7) return '';
+  return `<div class="offline row between"><span>${last ? 'صرلك أسبوع ما عملت نسخة احتياطية' : 'اعمل نسخة احتياطية عشان ما تضيع بياناتك لو صار إشي للتلفون'}</span><button class="btn ghost" style="padding:6px 12px" data-act="backup">نسخة</button></div>`;
+}
+function workRow(w, showDoc = true) {
+  const d = docById(w.doctorId);
+  const inv = S.invoices.find(i => i.id === w.invoiceId);
+  const tag = w.invoiceId ? `<span class="pill inv">فاتورة ${esc(inv ? inv.number : '')}</span>` : `<span class="pill due">مش مفوتر</span>`;
+  const qty = n2(w.qty) > 1 ? ` × ${money(w.qty)}` : '';
+  const rest = [showDoc ? docName(d) : '', w.patient ? 'المريض: ' + w.patient : ''].filter(Boolean).map(x => ' · ' + esc(x)).join('');
+  return `<button class="item" data-work="${esc(w.id)}"><span class="main"><span class="name">${esc(w.type)}${qty}</span><span class="sub"><span class="num">${esc(shortDate(w.date))}</span>${rest}</span></span>
+    <span style="display:grid;justify-items:end;gap:2px"><span class="amt">${M(w.total)}</span>${tag}</span></button>`;
+}
+
+function viewDoctors() {
+  return `<div class="row"><input class="search" id="q" type="search" placeholder="دوّر على دكتور…" value="${esc(searchQ)}" aria-label="بحث"></div>
+  <button class="btn primary full" data-act="newDoctor">+ دكتور جديد</button>
+  <div class="list" id="docList">${doctorRows()}</div>`;
+}
+
+function viewDoctor() {
+  const d = docById(route.id);
+  if (!d) return `<div class="list"><div class="empty">${S.ready ? 'هالدكتور مش موجود' : 'لحظة…'}</div></div>`;
+  const st = stats(d.id);
+  const tab = route.tab;
+  let body = '';
+  if (tab === 'works') body = st.works.length ? st.works.map(w => workRow(w, false)).join('') : `<div class="empty"><b>ما في شغل مسجّل</b>اضغط «سجّل شغل» تحت.</div>`;
+  if (tab === 'pays') body = st.pays.length ? st.pays.map(payRow).join('') : `<div class="empty"><b>ما في دفعات</b>لما يدفعلك اضغط «سجّل دفعة».</div>`;
+  if (tab === 'invs') { const invs = S.invoices.filter(i => i.doctorId === d.id); body = invs.length ? invs.map(i => invRow(i, false)).join('') : `<div class="empty">لسا ما بعتتله فاتورة</div>`; }
+  return `
+  <section class="dochead">
+    <div class="row"><span class="av">${esc(initial(d.name))}</span><div class="main" style="flex:1;min-width:0"><div class="nm">${esc(docName(d))}</div>
+      <div class="meta">${esc(d.clinic || '')}${d.clinic && d.phone ? ' · ' : ''}<span class="num">${esc(d.phone || '')}</span></div></div>
+      <button class="btn ghost" data-act="editDoctor" style="padding:8px 12px">تعديل</button></div>
+    <div class="bal">
+      <div><span>كل الشغل</span><b>${M(st.billed)}</b></div>
+      <div><span>دفع</span><b>${M(st.paid)}</b></div>
+      <div class="due"><span>${st.balance < 0 ? 'إله رصيد' : 'المطلوب'}</span><b>${M(Math.abs(st.balance))}</b></div>
+    </div>
+    <button class="btn wa full" data-act="invoice">${WA_ICON} ابعت فاتورة على الواتس${st.open.length ? ` (${st.open.length} شغل جديد)` : ''}</button>
+    <div class="actions"><button class="btn primary" data-act="newWork">+ سجّل شغل</button><button class="btn ghost" data-act="newPay">سجّل دفعة</button></div>
+  </section>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="works" aria-selected="${tab === 'works'}">الشغل</button>
+    <button role="tab" data-tab="pays" aria-selected="${tab === 'pays'}">الدفعات</button>
+    <button role="tab" data-tab="invs" aria-selected="${tab === 'invs'}">الفواتير</button>
+  </div>
+  <div class="list">${body}</div>`;
+}
+
+function payRow(p) {
+  return `<button class="item" data-pay="${esc(p.id)}"><span class="av" style="background:var(--good-bg);color:var(--good)">✓</span>
+    <span class="main"><span class="name">دفعة ${esc(p.method || '')}</span><span class="sub"><span class="num">${esc(fmtDate(p.date))}</span>${p.note ? ' · ' + esc(p.note) : ''}</span></span><span class="amt" style="color:var(--good)">${M(p.amount)}</span></button>`;
+}
+function invRow(i, showDoc = true) {
+  const d = docById(i.doctorId);
+  return `<button class="item" data-inv="${esc(i.id)}"><span class="av" style="border-radius:10px">#</span>
+    <span class="main"><span class="name">فاتورة <span class="num">${esc(i.number)}</span>${showDoc ? ' · ' + esc(docName(d)) : ''}</span><span class="sub"><span class="num">${esc(fmtDate(i.date))}</span> · ${(i.workIds || []).length} شغل</span></span><span class="amt">${M(i.due)}</span></button>`;
+}
+function viewInvoices() {
+  return `<h2>كل الفواتير اللي انبعتت</h2><div class="list">${S.invoices.length ? S.invoices.map(i => invRow(i)).join('') : `<div class="empty"><b>لسا ما في فواتير</b>افتح صفحة أي دكتور واضغط «ابعت فاتورة على الواتس».</div>`}</div>`;
+}
+
+function viewSettings() {
+  return `<form id="setForm" class="list" style="padding:16px;display:grid;gap:14px">
+    <label class="f">اسم الشغل (بيطلع بالفاتورة)<input id="sName" placeholder="SMILE_JO"></label>
+    <label class="f">رقمك<input id="sPhone" inputmode="tel" placeholder="07XXXXXXXX"></label>
+    <label class="f">العملة<input id="sCur" placeholder="د.أ"></label>
+    <label class="f">طرق الدفع اللي بتقبلها (CliQ، كاش…)<input id="sPayInfo" placeholder="مثلاً: CliQ على الاسم SMILEJO"></label>
+    <label class="f">جملة آخر الفاتورة<textarea id="sFooter" rows="2" placeholder="شكراً لثقتكم"></textarea></label>
+    <button class="btn primary">احفظ الإعدادات</button>
+  </form>
+  <h2>أسعار الشغل</h2>
+  <p class="note" style="margin:0">كل نوع شغل بتسجّله، التطبيق بيتذكّر آخر سعر إله وبيعبّيه لحاله المرة الجاية. تقدر تحذف أنواع ما عدت تستعملها.</p>
+  <div class="list">${priceRows()}</div>
+  <h2>النسخة الاحتياطية</h2>
+  <div class="list" style="padding:14px 16px;display:grid;gap:10px">
+    <p class="note" style="margin:0">كل البيانات محفوظة على تلفونك بس. اعمل نسخة كل أسبوع واحفظها بـ «الملفات» أو ابعتها لحالك على الواتس.</p>
+    <button class="btn primary" data-act="backup">احفظ نسخة احتياطية</button>
+    <label class="btn ghost" for="impFile">رجّع من نسخة احتياطية</label>
+    <input type="file" id="impFile" accept=".json,application/json" hidden>
+  </div>
+  <h2>إضافة التطبيق للشاشة الرئيسية</h2>
+  <div class="list" style="padding:14px 16px" >
+    <p style="margin:0 0 6px"><b>آيفون:</b> افتح الرابط بـ Safari ← زر المشاركة <span class="num">⬆︎</span> ← «إضافة إلى الشاشة الرئيسية».</p>
+    <p style="margin:0"><b>أندرويد:</b> افتح الرابط بـ Chrome ← النقاط الثلاث ← «إضافة إلى الشاشة الرئيسية».</p>
+  </div>`;
+}
+function priceRows() {
+  const p = S.settings.prices || {};
+  const keys = Object.keys(p);
+  if (!keys.length) return `<div class="empty">لسا ما سجّلت شغل. أول ما تسجّل، بيطلع هون.</div>`;
+  return keys.sort((a, b) => a.localeCompare(b, 'ar')).map(k => `<div class="item" style="cursor:default"><span class="main"><span class="name">${esc(k)}</span></span><span class="amt">${M(p[k])}</span>
+    <button class="btn danger" style="padding:4px 10px" data-delprice="${esc(k)}">حذف</button></div>`).join('');
+}
+function fillSettings() {
+  const s = S.settings;
+  $('#sName').value = s.businessName || ''; $('#sPhone').value = s.phone || ''; $('#sCur').value = s.currency || '';
+  $('#sPayInfo').value = s.payInfo || ''; $('#sFooter').value = s.footer || '';
+}
+
+/* ---------- sheets ---------- */
+function openSheet(html, onMount) {
+  closeSheet();
+  const sc = document.createElement('div'); sc.className = 'scrim'; sc.id = 'scrim';
+  sc.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grip"></div>${html}</div>`;
+  sc.addEventListener('click', e => { if (e.target === sc || e.target.closest('[data-close]')) closeSheet(); });
+  document.body.appendChild(sc);
+  onMount && onMount(sc.querySelector('.sheet'));
+}
+function closeSheet() { const s = $('#scrim'); if (s) s.remove(); }
+
+function doctorSheet(d) {
+  openSheet(`<h3>${d ? 'تعديل الدكتور' : 'دكتور جديد'}</h3>
+  <form id="f" style="display:grid;gap:12px">
+    <label class="f">اسم الدكتور<input id="dName" required placeholder="مثلاً: أحمد الخطيب" value="${esc(d?.name)}"></label>
+    <label class="f">العيادة / المنطقة<input id="dClinic" placeholder="مثلاً: عيادة الابتسامة — عبدون" value="${esc(d?.clinic)}"></label>
+    <label class="f">رقم الواتس<input id="dPhone" inputmode="tel" placeholder="07XXXXXXXX" value="${esc(d?.phone)}"></label>
+    <button class="btn primary">احفظ</button>
+    ${d ? `<div class="confirm" id="delWrap"><button type="button" class="btn danger" id="delBtn">حذف الدكتور</button></div>` : ''}
+    <button type="button" class="btn ghost" data-close>إلغاء</button>
+  </form>`, sh => {
+    sh.querySelector('#f').onsubmit = async e => {
+      e.preventDefault();
+      const data = { name: $('#dName').value.trim(), clinic: $('#dClinic').value.trim(), phone: $('#dPhone').value.trim(), createdAt: d?.createdAt || Date.now() };
+      if (!data.name) return;
+      const id = await save('doctors', d?.id, data);
+      closeSheet(); toast('انحفظ');
+      route = { name: 'doctor', id, tab: route.tab || 'works' }; render();
+    };
+    const del = sh.querySelector('#delBtn');
+    if (del) del.onclick = () => {
+      const st = stats(d.id);
+      sh.querySelector('#delWrap').innerHTML = `<span>متأكد؟ رح ينحذف مع ${st.works.length} شغل و${st.pays.length} دفعة.</span><button type="button" class="btn danger" id="yes">آه، احذف</button>`;
+      sh.querySelector('#yes').onclick = async () => {
+        for (const w of st.works) await remove('works', w.id);
+        for (const p of st.pays) await remove('payments', p.id);
+        await remove('doctors', d.id);
+        closeSheet(); route = { name: 'doctors' }; render(); toast('انحذف');
+      };
+    };
+  });
+}
+
+function workSheet(w, presetDoctor) {
+  if (!S.doctors.length) { toast('ضيف دكتور أول'); doctorSheet(); return; }
+  const prices = S.settings.prices || {};
+  const recentTypes = [...new Set(S.works.map(x => x.type))].slice(0, 8);
+  const types = [...new Set([...recentTypes, ...Object.keys(prices)])].slice(0, 10);
+  const docId = w?.doctorId || presetDoctor || '';
+  openSheet(`<h3>${w ? 'تعديل الشغل' : 'شغل جديد'}</h3>
+  <form id="f" style="display:grid;gap:12px">
+    <label class="f">الدكتور<select id="wDoc" required><option value="">— اختار —</option>${S.doctors.map(d => `<option value="${esc(d.id)}" ${d.id === docId ? 'selected' : ''}>${esc(docName(d))}</option>`).join('')}</select></label>
+    <label class="f">شو الشغل<input id="wType" required list="typeList" placeholder="مثلاً: ريتينر" value="${esc(w?.type)}"><datalist id="typeList">${Object.keys(prices).map(k => `<option value="${esc(k)}">`).join('')}</datalist></label>
+    ${types.length ? `<div class="chips">${types.map(t => `<button type="button" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}
+    <div class="two">
+      <label class="f">العدد<input id="wQty" type="number" inputmode="decimal" min="0" step="any" value="${esc(w?.qty ?? 1)}"></label>
+      <label class="f">سعر الواحد (${esc(cur())})<input id="wPrice" type="number" inputmode="decimal" min="0" step="any" required value="${esc(w?.price ?? '')}"></label>
+    </div>
+    <div class="two">
+      <label class="f">اسم المريض (اختياري)<input id="wPatient" value="${esc(w?.patient)}"></label>
+      <label class="f">التاريخ<input id="wDate" type="date" value="${esc(w?.date || today())}"></label>
+    </div>
+    <label class="f">ملاحظة (اختياري)<input id="wNote" value="${esc(w?.note)}"></label>
+    <div class="total-line"><span>المجموع</span><b id="wTotal"></b></div>
+    ${w?.invoiceId ? `<p class="note" style="margin:0">هالشغل انبعت بفاتورة. التعديل بيغيّر الحساب بس ما بيغيّر الفاتورة اللي انبعتت.</p>` : ''}
+    <button class="btn primary">احفظ</button>
+    ${w ? `<div class="confirm" id="delWrap"><button type="button" class="btn danger" id="delBtn">حذف</button></div>` : ''}
+  </form>`, sh => {
+    const upd = () => { sh.querySelector('#wTotal').innerHTML = M(n2(+$('#wQty').value * +$('#wPrice').value)); };
+    const fillPrice = () => { const p = prices[$('#wType').value.trim()]; if (p != null && !$('#wPrice').dataset.touched) { $('#wPrice').value = p; upd(); } };
+    sh.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { $('#wType').value = b.dataset.type; $('#wPrice').dataset.touched = ''; fillPrice(); });
+    $('#wType').addEventListener('input', fillPrice);
+    $('#wPrice').addEventListener('input', () => { $('#wPrice').dataset.touched = '1'; upd(); });
+    $('#wQty').addEventListener('input', upd); upd();
+    sh.querySelector('#f').onsubmit = async e => {
+      e.preventDefault();
+      const qty = n2($('#wQty').value || 1), price = n2($('#wPrice').value);
+      const data = { doctorId: $('#wDoc').value, type: $('#wType').value.trim(), qty, price, total: n2(qty * price),
+        patient: $('#wPatient').value.trim(), date: $('#wDate').value || today(), note: $('#wNote').value.trim(),
+        invoiceId: w?.invoiceId || '', createdAt: w?.createdAt || Date.now() };
+      if (!data.doctorId || !data.type) return;
+      await save('works', w?.id, data);
+      if (prices[data.type] !== price) await save('settings', 'main', { ...S.settings, prices: { ...prices, [data.type]: price } });
+      closeSheet(); toast('انسجّل الشغل');
+    };
+    const del = sh.querySelector('#delBtn');
+    if (del) del.onclick = () => {
+      sh.querySelector('#delWrap').innerHTML = `<span>متأكد بدك تحذفه؟</span><button type="button" class="btn danger" id="yes">آه، احذف</button>`;
+      sh.querySelector('#yes').onclick = async () => { await remove('works', w.id); closeSheet(); toast('انحذف'); };
+    };
+  });
+}
+
+function paySheet(p, doctorId) {
+  const did = p?.doctorId || doctorId;
+  const st = stats(did);
+  openSheet(`<h3>${p ? 'تعديل الدفعة' : 'سجّل دفعة'} — ${esc(docName(docById(did)))}</h3>
+  <form id="f" style="display:grid;gap:12px">
+    <label class="f">المبلغ (${esc(cur())})<input id="pAmt" type="number" inputmode="decimal" min="0" step="any" required value="${esc(p?.amount ?? (st.balance > 0 ? st.balance : ''))}"></label>
+    <div class="two">
+      <label class="f">الطريقة<select id="pMethod">${['كاش', 'CliQ', 'تحويل بنكي', 'شيك'].map(m => `<option ${p?.method === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+      <label class="f">التاريخ<input id="pDate" type="date" value="${esc(p?.date || today())}"></label>
+    </div>
+    <label class="f">ملاحظة (اختياري)<input id="pNote" value="${esc(p?.note)}"></label>
+    <button class="btn primary">احفظ الدفعة</button>
+    ${p ? `<div class="confirm" id="delWrap"><button type="button" class="btn danger" id="delBtn">حذف الدفعة</button></div>` : ''}
+  </form>`, sh => {
+    sh.querySelector('#f').onsubmit = async e => {
+      e.preventDefault();
+      const amount = n2($('#pAmt').value); if (!amount) return;
+      await save('payments', p?.id, { doctorId: did, amount, method: $('#pMethod').value, date: $('#pDate').value || today(), note: $('#pNote').value.trim(), createdAt: p?.createdAt || Date.now() });
+      closeSheet(); toast('انسجّلت الدفعة');
+    };
+    const del = sh.querySelector('#delBtn');
+    if (del) del.onclick = () => {
+      sh.querySelector('#delWrap').innerHTML = `<span>متأكد؟</span><button type="button" class="btn danger" id="yes">آه، احذف</button>`;
+      sh.querySelector('#yes').onclick = async () => { await remove('payments', p.id); closeSheet(); toast('انحذفت'); };
+    };
+  });
+}
+
+/* ---------- invoice ---------- */
+function invoiceText(inv, d, works) {
+  const s = S.settings, c = cur();
+  const L = [];
+  L.push(`*فاتورة رقم ${inv.number}*`);
+  L.push(`${s.businessName || 'SMILE_JO'}${s.phone ? ' — ' + s.phone : ''}`);
+  L.push(`التاريخ: ${fmtDate(inv.date)}`);
+  L.push(`إلى: ${docName(d)}${d.clinic ? ' — ' + d.clinic : ''}`);
+  L.push('');
+  if (works.length) {
+    L.push('*تفاصيل الشغل:*');
+    works.forEach((w, i) => {
+      const q = n2(w.qty) > 1 ? ` (${money(w.qty)} × ${money(w.price)})` : '';
+      L.push(`${i + 1}. ${shortDate(w.date)} — ${w.type}${q}${w.patient ? ' — ' + w.patient : ''}: ${money(w.total)} ${c}`);
+    });
+    L.push('');
+    L.push(`مجموع الشغل: ${money(inv.itemsTotal)} ${c}`);
+  }
+  if (n2(inv.prevBalance) > 0) L.push(`رصيد سابق: ${money(inv.prevBalance)} ${c}`);
+  if (n2(inv.prevBalance) < 0) L.push(`رصيد إلك عنا: ${money(-inv.prevBalance)} ${c}`);
+  L.push(`*المطلوب: ${money(Math.max(0, inv.due))} ${c}*`);
+  if (s.payInfo) { L.push(''); L.push(`طريقة الدفع: ${s.payInfo}`); }
+  L.push('');
+  L.push(s.footer || 'شكراً لثقتكم 🌟');
+  return L.join('\n');
+}
+function invoiceHtml(inv, d, works) {
+  return `<div class="invoice"><div class="ih"><b>فاتورة <span class="num">${esc(inv.number)}</span></b><span class="num">${esc(fmtDate(inv.date))}</span></div>
+  <table><tbody>
+    <tr><td colspan="2"><b>${esc(docName(d))}</b>${d.clinic ? ' · ' + esc(d.clinic) : ''}</td></tr>
+    ${works.map(w => `<tr><td>${esc(w.type)}${n2(w.qty) > 1 ? ` × <span class="num">${money(w.qty)}</span>` : ''}<div class="note"><span class="num">${esc(shortDate(w.date))}</span>${w.patient ? ' · ' + esc(w.patient) : ''}</div></td><td>${M(w.total)}</td></tr>`).join('')}
+    ${works.length ? `<tr class="sum"><td>مجموع الشغل</td><td>${M(inv.itemsTotal)}</td></tr>` : ''}
+    ${n2(inv.prevBalance) ? `<tr><td>${inv.prevBalance > 0 ? 'رصيد سابق' : 'رصيد إله'}</td><td>${M(Math.abs(inv.prevBalance))}</td></tr>` : ''}
+    <tr class="due"><td>المطلوب</td><td>${M(Math.max(0, inv.due))}</td></tr>
+  </tbody></table></div>`;
+}
+function nextNumber() {
+  const max = S.invoices.reduce((a, i) => Math.max(a, parseInt(i.number, 10) || 0), 0);
+  return String(max + 1).padStart(4, '0');
+}
+function invoiceSheet(doctorId, existing) {
+  const d = docById(doctorId); if (!d) return;
+  let inv, works, savedId = existing?.id || null;
+  if (existing) {
+    inv = existing; works = S.works.filter(w => (existing.workIds || []).includes(w.id));
+  } else {
+    const st = stats(doctorId);
+    works = st.open.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    inv = { number: nextNumber(), date: today(), doctorId, workIds: works.map(w => w.id), itemsTotal: n2(st.openTotal), prevBalance: n2(st.balance - st.openTotal), due: st.balance };
+    if (!works.length && st.balance <= 0) { toast('ما في شغل جديد ولا حساب مطلوب'); return; }
+  }
+  const text = existing?.text || invoiceText(inv, d, works);
+  const noPhone = !waNumber(d.phone);
+  openSheet(`<h3>${existing ? 'فاتورة قديمة' : works.length ? 'فاتورة جديدة' : 'تذكير بالحساب'}</h3>
+    ${invoiceHtml(inv, d, works)}
+    ${noPhone ? `<p class="note" style="margin:0">ما في رقم واتس لهالدكتور — الواتس رح يفتح وتختار المحادثة بإيدك.</p>` : ''}
+    <a class="btn wa full" id="waBtn" href="${esc(waLink(d.phone, text))}" target="_blank" rel="noopener">${WA_ICON} افتح الواتس وابعتها</a>
+    <button class="btn ghost full" id="cpBtn">انسخ نص الفاتورة</button>
+    <textarea id="cpTxt" hidden readonly rows="8" style="width:100%;border-radius:12px;padding:10px;border:1px solid var(--line);background:var(--bg)">${esc(text)}</textarea>
+    <p class="note" style="margin:0">${existing ? 'بتقدر تعيد بعتها بأي وقت.' : 'لما تضغط «افتح الواتس» الفاتورة بتنحفظ والشغل بيتعلّم إنه مفوتر.'}</p>
+    <button class="btn ghost full" data-close>سكّر</button>
+    ${existing ? `<div class="confirm" id="delWrap"><button type="button" class="btn danger" id="delBtn">حذف الفاتورة</button></div>` : ''}`, sh => {
+    const persist = async () => {
+      if (savedId) return;
+      savedId = newId();
+      const rec = { ...inv, text, createdAt: Date.now() };
+      await save('invoices', savedId, rec);
+      for (const w of works) await save('works', w.id, { ...strip(w), invoiceId: savedId });
+      toast('انحفظت الفاتورة ' + inv.number);
+    };
+    sh.querySelector('#waBtn').addEventListener('click', () => { persist().catch(() => {}); });
+    sh.querySelector('#cpBtn').onclick = () => { copyText(text, sh.querySelector('#cpTxt')); persist().catch(() => {}); };
+    const del = sh.querySelector('#delBtn');
+    if (del) del.onclick = () => {
+      sh.querySelector('#delWrap').innerHTML = `<span>الشغل اللي فيها برجع «مش مفوتر».</span><button type="button" class="btn danger" id="yes">احذف</button>`;
+      sh.querySelector('#yes').onclick = async () => {
+        for (const w of works) await save('works', w.id, { ...strip(w), invoiceId: '' });
+        await remove('invoices', existing.id); closeSheet(); toast('انحذفت الفاتورة');
+      };
+    };
+  });
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, a'); if (!t || t.closest('.sheet')) return;
+  if (t.dataset.go) { route = { name: t.dataset.go }; render(); window.scrollTo(0, 0); return; }
+  if (t.id === 'fab') { workSheet(null, route.name === 'doctor' ? route.id : null); return; }
+  if (t.id === 'backBtn') { route = { name: 'doctors' }; render(); return; }
+  if (t.dataset.doc) { route = { name: 'doctor', id: t.dataset.doc, tab: 'works' }; render(); window.scrollTo(0, 0); return; }
+  if (t.dataset.tab) { route.tab = t.dataset.tab; render(); return; }
+  if (t.dataset.work) { workSheet(S.works.find(w => w.id === t.dataset.work)); return; }
+  if (t.dataset.pay) { paySheet(S.payments.find(p => p.id === t.dataset.pay)); return; }
+  if (t.dataset.inv) { const i = S.invoices.find(x => x.id === t.dataset.inv); if (i) invoiceSheet(i.doctorId, i); return; }
+  if (t.dataset.delprice) { const p = { ...(S.settings.prices || {}) }; delete p[t.dataset.delprice]; save('settings', 'main', { ...S.settings, prices: p }); return; }
+  const a = t.dataset.act;
+  if (a === 'newDoctor') doctorSheet();
+  if (a === 'editDoctor') doctorSheet(docById(route.id));
+  if (a === 'newWork') workSheet(null, route.id);
+  if (a === 'newPay') paySheet(null, route.id);
+  if (a === 'invoice') invoiceSheet(route.id);
+  if (a === 'backup') exportBackup();
+});
+document.addEventListener('change', e => { if (e.target.id === 'impFile' && e.target.files[0]) { importBackup(e.target.files[0]); e.target.value = ''; } });
+document.addEventListener('input', e => { if (e.target.id === 'q') { searchQ = e.target.value; $('#docList').innerHTML = doctorRows(); } });
+document.addEventListener('submit', async e => {
+  if (e.target.id !== 'setForm') return;
+  e.preventDefault();
+  await save('settings', 'main', { ...S.settings, businessName: $('#sName').value.trim(), phone: $('#sPhone').value.trim(),
+    currency: $('#sCur').value.trim(), payInfo: $('#sPayInfo').value.trim(), footer: $('#sFooter').value.trim() });
+  toast('انحفظت الإعدادات');
+});
+
+/* ---------- boot ---------- */
+load();
+render();
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+window.addEventListener('storage', e => { if (e.key === KEY) { load(); render(); } });
+})();
+</script>
+</body></html>
