@@ -65,6 +65,7 @@ h2{font:600 15px var(--f-display);margin:0;color:var(--muted);letter-spacing:.2p
 .item:first-child{border-top:0}
 .item:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 .item .main{flex:1;min-width:0}
+.item .name,.item .sub{display:block}
 .item .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item .amt{font:600 16px var(--f-display);white-space:nowrap}
@@ -93,7 +94,7 @@ h2{font:600 15px var(--f-display);margin:0;color:var(--muted);letter-spacing:.2p
 .dochead .meta{font-size:13px;color:var(--muted)}
 .bal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .bal div{background:var(--bg);border-radius:12px;padding:8px 10px}
-.bal span{font-size:12px;color:var(--muted);display:block}
+.bal > div > span{font-size:12px;color:var(--muted);display:block}
 .bal b{font:600 15px var(--f-display);white-space:nowrap}
 .bal .due b{color:var(--warn)}
 
@@ -139,6 +140,22 @@ label.f input:focus,label.f select:focus,label.f textarea:focus{outline:2px soli
   padding:12px 16px;border-radius:12px;z-index:30;text-align:center;font-weight:500}
 .offline{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:14px}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpis div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:2px}
+.kpis div.wide{grid-column:1/-1;background:var(--dark);color:#F7F7F7;border-color:var(--dark)}
+.kpis > div > span:first-child{font-size:12px;color:var(--muted)} .kpis .wide > span:first-child{color:#c9cbd3}
+.kpis b{font:700 22px var(--f-display)} .kpis .wide b{color:var(--yellow)}
+.dl{font-size:12px;color:var(--muted)} .dl.up{color:var(--good)} .dl.down{color:var(--bad)}
+.sbar,.pbar{height:8px;border-radius:8px;background:var(--bg);overflow:hidden}
+.sbar i,.pbar i{display:block;height:100%;border-radius:8px;background:var(--blue)}
+.pbar i{background:var(--good)}
+.bal .paid b{color:var(--good)}
+.trend{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end;height:170px;padding:12px 12px 8px}
+.tcol{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
+.tcol i{width:60%;max-width:34px;background:var(--blue);border-radius:4px 4px 0 0;display:block}
+.tv{font-size:10px;color:var(--muted)} .tl{font-size:11px;color:var(--muted)}
+.pill.st-received{background:var(--chip);color:var(--blue-ink)} .pill.st-working{background:var(--warn-bg);color:var(--warn)} .pill.st-ready{background:var(--good-bg);color:var(--good)}
+.rrow{display:grid;gap:8px;border:1px solid var(--line);border-radius:14px;padding:12px}
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .mcell{position:relative;aspect-ratio:1;max-width:100%;border:0;padding:0;border-radius:10px;overflow:hidden;background:var(--surface);cursor:pointer}
 .mcell img,.mcell video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -162,8 +179,8 @@ label.f input:focus,label.f select:focus,label.f textarea:focus{outline:2px soli
   <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>الرئيسية</button>
   <button data-go="doctors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7"/><path d="M17 4a4 4 0 0 1 0 8M22 21c0-3-1.5-5.5-4-6.5"/></svg>الدكاترة</button>
   <button class="fab" id="fab" aria-label="سجّل شغل جديد"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-  <button data-go="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>المكتبة</button>
-  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>الإعدادات</button>
+  <button data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>الإحصائيات</button>
+  <button data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>المزيد</button>
 </nav>
 
 <script>
@@ -184,7 +201,7 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const n2 = v => Math.round((+v || 0) * 1000) / 1000;
 const cur = () => S.settings.currency || 'د.أ';
 const money = v => { const x = n2(v); return x.toLocaleString('en-US', { maximumFractionDigits: 2 }); };
-const M = v => `<span class="num">${money(v)}</span> ${esc(cur())}`;
+const M = v => `<span style="white-space:nowrap"><span class="num">${money(v)}</span> ${esc(cur())}</span>`;
 const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
 const fmtDate = s => { if (!s) return ''; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
 const shortDate = s => { if (!s) return ''; const [, m, d] = s.split('-'); return `${d}/${m}`; };
@@ -290,8 +307,8 @@ function importBackup(file) {
 /* ---------- views ---------- */
 function render() {
   const v = $('#view');
-  document.querySelectorAll('nav.bar [data-go]').forEach(b => b.setAttribute('aria-current', b.dataset.go === route.name || ((route.name === 'doctor' && b.dataset.go === 'doctors') || (route.name === 'invoices' && b.dataset.go === 'home')) ? 'page' : 'false'));
-  $('#backBtn').hidden = !['doctor', 'invoices'].includes(route.name);
+  document.querySelectorAll('nav.bar [data-go]').forEach(b => b.setAttribute('aria-current', b.dataset.go === route.name || ((route.name === 'doctor' && b.dataset.go === 'doctors') || (['invoices', 'library'].includes(route.name) && b.dataset.go === 'settings')) ? 'page' : 'false'));
+  $('#backBtn').hidden = !['doctor', 'invoices', 'library'].includes(route.name);
   $('#hTitle').textContent = 'فواتير الدكاترة';
   $('#hSub').textContent = S.settings.businessName || 'SMILE_JO';
   let html = '';
@@ -302,6 +319,7 @@ function render() {
   else if (route.name === 'invoices') html += viewInvoices();
   else if (route.name === 'settings') html += viewSettings();
   else if (route.name === 'library') html += viewLibrary();
+  else if (route.name === 'stats') html += viewStats();
   const keepSearch = route.name === 'doctors' && document.activeElement && document.activeElement.id === 'q';
   if (keepSearch) { $('#docList').innerHTML = doctorRows(); return; }
   v.innerHTML = html;
@@ -340,6 +358,10 @@ function viewHome() {
   </section>
   ${S.doctors.length ? '' : `<div class="list"><div class="empty"><b>أهلاً فيك 👋</b>ابدأ بإضافة أول دكتور، بعدين سجّل الشغل من زر <b style="display:inline">+</b> الأصفر، ولما تخلص ابعتله الفاتورة على الواتس.</div><div style="padding:0 14px 14px"><button class="btn primary full" data-act="newDoctor">+ دكتور جديد</button></div></div>`}
   ${backupNag()}
+  ${(() => { const t = today(); const due = S.works.filter(w => w.due && w.status !== 'delivered' && w.status !== 'ready' && w.due <= t).sort((a, b) => a.due.localeCompare(b.due));
+    const ready = S.works.filter(w => w.status === 'ready');
+    return (due.length ? `<h2>مطلوب تسليمه اليوم أو متأخر (${due.length})</h2><div class="list">${due.slice(0, 8).map(w => workRow(w)).join('')}</div>` : '') +
+      (ready.length ? `<h2>جاهز بستنى تسليم (${ready.length})</h2><div class="list">${ready.slice(0, 8).map(w => workRow(w)).join('')}</div>` : ''); })()}
   ${owing.length ? `<div class="row between"><h2>دكاترة عليهم حساب</h2></div><div class="list">${owing.map(x => doctorRow(x.d)).join('')}</div>` : ''}
   ${S.invoices.length ? `<button class="btn ghost full" data-go="invoices">كل الفواتير (<span class="num">${S.invoices.length}</span>)</button>` : ''}
   ${recent.length ? `<h2>آخر شغل</h2><div class="list">${recent.map(workRow).join('')}</div>` : ''}`;
@@ -355,11 +377,12 @@ function backupNag() {
 function workRow(w, showDoc = true) {
   const d = docById(w.doctorId);
   const inv = S.invoices.find(i => i.id === w.invoiceId);
+  const stp = w.status && w.status !== 'delivered' ? `<span class="pill st-${w.status}">${statusLabel(w.status)}${w.due && w.status !== 'ready' ? ' · ' + shortDate(w.due) : ''}</span>` : '';
   const tag = w.invoiceId ? `<span class="pill inv">فاتورة ${esc(inv ? inv.number : '')}</span>` : `<span class="pill due">مش مفوتر</span>`;
   const qty = n2(w.qty) > 1 ? ` × ${money(w.qty)}` : '';
   const rest = [w.caseNo ? 'حالة ' + w.caseNo : '', showDoc ? docName(d) : '', w.patient ? 'المريض: ' + w.patient : ''].filter(Boolean).map(x => ' · ' + esc(x)).join('');
   return `<button class="item" data-work="${esc(w.id)}"><span class="main"><span class="name">${esc(w.type)}${qty}</span><span class="sub"><span class="num">${esc(shortDate(w.date))}</span>${rest}</span></span>
-    <span style="display:grid;justify-items:end;gap:2px"><span class="amt">${M(w.total)}</span>${tag}</span></button>`;
+    <span style="display:grid;justify-items:end;gap:2px"><span class="amt">${M(w.total)}</span><span class="row" style="gap:4px">${stp}${tag}</span></span></button>`;
 }
 
 function viewDoctors() {
@@ -376,6 +399,7 @@ function viewDoctor() {
   let body = '';
   if (tab === 'works') body = st.works.length ? st.works.map(w => workRow(w, false)).join('') : `<div class="empty"><b>ما في شغل مسجّل</b>اضغط «سجّل شغل» تحت.</div>`;
   if (tab === 'pays') body = st.pays.length ? st.pays.map(payRow).join('') : `<div class="empty"><b>ما في دفعات</b>لما يدفعلك اضغط «سجّل دفعة».</div>`;
+  if (tab === 'docs') { const sc = MEDIA.list.filter(m => m.kind === 'scan' && m.doctorId === d.id); body = sc.length ? `<div class="mgrid" style="padding:8px">${sc.map(m => `<button class="mcell" data-scan="${esc(m.id)}"><img src="${mUrl(m)}" alt=""><span class="mcap">${esc(fmtDate(new Date(m.createdAt).toISOString().slice(0, 10)))}</span></button>`).join('')}</div>` : `<div class="empty"><b>ما في أوراق</b>اضغط «امسح ورقة» وصوّر ورقة الشغل.</div>`; }
   if (tab === 'invs') { const invs = S.invoices.filter(i => i.doctorId === d.id); body = invs.length ? invs.map(i => invRow(i, false)).join('') : `<div class="empty">لسا ما بعتتله فاتورة</div>`; }
   return `
   <section class="dochead">
@@ -384,17 +408,22 @@ function viewDoctor() {
       <button class="btn ghost" data-act="editDoctor" style="padding:8px 12px">تعديل</button></div>
     <div class="bal">
       <div><span>كل الشغل</span><b>${M(st.billed)}</b></div>
-      <div><span>دفع</span><b>${M(st.paid)}</b></div>
-      <div class="due"><span>${st.balance < 0 ? 'إله رصيد' : 'المطلوب'}</span><b>${M(Math.abs(st.balance))}</b></div>
+      <div class="paid"><span>دفع</span><b>${M(st.paid)}</b></div>
+      <div class="due"><span>${st.balance < 0 ? 'إله رصيد' : 'باقي عليه'}</span><b>${M(Math.abs(st.balance))}</b></div>
     </div>
+    <div class="pbar" title="دفع ${st.billed ? Math.round(st.paid / st.billed * 100) : 0}%"><i style="width:${st.billed ? Math.min(100, st.paid / st.billed * 100) : 0}%"></i></div>
+    <div class="row between note"><span>دفع <b class="num">${st.billed ? Math.min(100, Math.round(st.paid / st.billed * 100)) : 0}%</b> من الحساب</span><span>${st.pays[0] ? 'آخر دفعة: <span class="num">' + esc(fmtDate(st.pays[0].date)) + '</span>' : 'ما دفع لسا'}</span></div>
+    ${oldestUnpaidDays(d.id) > 30 ? `<button class="offline row between" data-act="remind" style="border:0;width:100%;cursor:pointer;text-align:start"><span>⚠️ في حساب متأخر من <b class="num">${oldestUnpaidDays(d.id)}</b> يوم</span><b>ذكّره</b></button>` : ''}
     <button class="btn wa full" data-act="invoice">${WA_ICON} ابعت فاتورة على الواتس${st.open.length ? ` (${st.open.length} شغل جديد)` : ''}</button>
     <div class="actions"><button class="btn primary" data-act="newWork">+ سجّل شغل</button><button class="btn ghost" data-act="newPay">سجّل دفعة</button></div>
-    <button class="btn ghost full" data-act="report">تقرير الشهر للدكتور (صورة)</button>
+    <div class="actions"><button class="btn ghost" data-act="scan">📷 امسح ورقة</button><button class="btn ghost" data-act="report">📊 تقرير الشهر</button></div>
+    ${st.balance > 0 ? `<button class="btn ghost full" data-act="remind">🔔 ذكّره بالدفع</button>` : ''}
   </section>
   <div class="tabs" role="tablist">
     <button role="tab" data-tab="works" aria-selected="${tab === 'works'}">الشغل</button>
     <button role="tab" data-tab="pays" aria-selected="${tab === 'pays'}">الدفعات</button>
     <button role="tab" data-tab="invs" aria-selected="${tab === 'invs'}">الفواتير</button>
+    <button role="tab" data-tab="docs" aria-selected="${tab === 'docs'}">الأوراق</button>
   </div>
   <div class="list">${body}</div>`;
 }
@@ -413,7 +442,13 @@ function viewInvoices() {
 }
 
 function viewSettings() {
-  return `<form id="setForm" class="list" style="padding:16px;display:grid;gap:14px">
+  return `<div class="actions">
+    <button class="btn ghost" data-go="library">🖼️ مكتبة الصور</button>
+    <button class="btn ghost" data-go="invoices">🧾 كل الفواتير</button>
+  </div>
+  <button class="btn primary full" data-act="demo">👀 شوف فاتورة تجريبية</button>
+  <h2>الإعدادات</h2>
+  <form id="setForm" class="list" style="padding:16px;display:grid;gap:14px">
     <label class="f">اسم الشغل (بيطلع بالفاتورة)<input id="sName" placeholder="SMILE_JO"></label>
     <label class="f">رقمك<input id="sPhone" inputmode="tel" placeholder="07XXXXXXXX"></label>
     <label class="f">العملة<input id="sCur" placeholder="د.أ"></label>
@@ -421,6 +456,8 @@ function viewSettings() {
     <label class="f">جملة آخر الفاتورة<textarea id="sFooter" rows="2" placeholder="شكراً لثقتكم"></textarea></label>
     <label class="f">رسالة المريض على الواتس<textarea id="sPMsg" rows="4"></textarea></label>
     <p class="note" style="margin:-6px 0 0">الكلمات بين الأقواس بتتعبّى لحالها: {المريض} {الدكتور} {الشغل} {التاريخ} {اسمي}</p>
+    <label class="f">مفتاح القراءة التلقائية للأوراق (اختياري)<input id="sKey" type="password" autocomplete="off" placeholder="sk-ant-…"></label>
+    <p class="note" style="margin:-6px 0 0">لو حطيت مفتاح Claude API، التطبيق بيقرأ الورقة اللي بتصوّرها وبيعبّي الشغل لحاله (تقريباً ٣ قروش للورقة). بدون مفتاح، الورقة بتنحفظ وبتعبّي إنت. المفتاح بيضل على تلفونك بس.</p>
     <button class="btn primary">احفظ الإعدادات</button>
   </form>
   <h2>أسعار الشغل</h2>
@@ -449,7 +486,7 @@ function priceRows() {
 function fillSettings() {
   const s = S.settings;
   $('#sName').value = s.businessName || ''; $('#sPhone').value = s.phone || ''; $('#sCur').value = s.currency || '';
-  $('#sPayInfo').value = s.payInfo || ''; $('#sFooter').value = s.footer || ''; $('#sPMsg').value = s.patientMsg || DEFAULT_PATIENT_MSG;
+  $('#sPayInfo').value = s.payInfo || ''; $('#sFooter').value = s.footer || ''; $('#sPMsg').value = s.patientMsg || DEFAULT_PATIENT_MSG; $('#sKey').value = s.apiKey || '';
 }
 
 /* ---------- media library (IndexedDB on the phone) ---------- */
@@ -475,12 +512,13 @@ async function mediaLoad() {
 const mUrl = m => { if (!MEDIA.urls.has(m.id)) MEDIA.urls.set(m.id, URL.createObjectURL(m.blob)); return MEDIA.urls.get(m.id); };
 const isVid = m => (m.type || '').startsWith('video');
 function viewLibrary() {
-  const list = MEDIA.list.filter(m => MEDIA.filter === 'all' || (MEDIA.filter === 'video') === isVid(m));
+  const lib = MEDIA.list.filter(m => !m.kind);
+  const list = lib.filter(m => MEDIA.filter === 'all' || (MEDIA.filter === 'video') === isVid(m));
   const f = (k, l) => `<button type="button" data-mfilter="${k}" aria-selected="${MEDIA.filter === k}">${l}</button>`;
   return `<div class="row between"><h2>مكتبة الصور والفيديوهات</h2><span class="note num">${esc(MEDIA.usage)}</span></div>
   <label class="btn primary full" for="mFile">+ ضيف صور أو فيديوهات</label>
   <input type="file" id="mFile" accept="image/*,video/*" multiple hidden>
-  ${MEDIA.list.length ? `<div class="tabs" role="tablist">${f('all', 'الكل')}${f('image', 'صور')}${f('video', 'فيديو')}</div>
+  ${lib.length ? `<div class="tabs" role="tablist">${f('all', 'الكل')}${f('image', 'صور')}${f('video', 'فيديو')}</div>
   <div class="row between"><span class="note">${MEDIA.selecting ? `اختار اللي بدك تبعته (${MEDIA.sel.size})` : 'اضغط على أي صورة عشان تبعتها لدكتور'}</span>
     <button class="btn ghost" style="padding:6px 12px" data-act="mselect">${MEDIA.selecting ? 'إلغاء' : 'اختار كذا وحدة'}</button></div>
   <div class="mgrid">${list.map(m => `<button class="mcell${MEDIA.sel.has(m.id) ? ' on' : ''}" data-media="${esc(m.id)}">
@@ -591,7 +629,16 @@ function workSheet(w, presetDoctor) {
       <label class="f">اسم المريض (اختياري)<input id="wPatient" value="${esc(w?.patient)}"></label>
       <label class="f">واتس المريض (اختياري)<input id="wPPhone" inputmode="tel" placeholder="07XXXXXXXX" value="${esc(w?.patientPhone)}"></label>
     </div>
-    <label class="f">التاريخ<input id="wDate" type="date" value="${esc(w?.date || today())}"></label>
+    <div class="two">
+      <label class="f">تاريخ الاستلام<input id="wDate" type="date" value="${esc(w?.date || today())}"></label>
+      <label class="f">موعد التسليم<input id="wDue" type="date" value="${esc(w?.due || '')}"></label>
+    </div>
+    <label class="f">الحالة<select id="wStatus">${STATUSES.map(([k, l]) => `<option value="${k}" ${(w?.status || 'received') === k ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+    <div class="f" style="display:grid;gap:6px;font-size:13px;color:var(--muted)">صورة الأسنان (اختياري)
+      <div class="row" style="flex-wrap:wrap" id="wPhotos"></div>
+      <label class="btn ghost" for="wPhotoIn" style="justify-self:start;padding:8px 14px">📷 ضيف صورة</label>
+      <input type="file" id="wPhotoIn" accept="image/*" multiple hidden>
+    </div>
     ${w && w.patientPhone ? `<a class="btn wa full" target="_blank" rel="noopener" href="${esc(waLink(w.patientPhone, patientMsg(w)))}">${WA_ICON} ابعت رسالة للمريض</a>` : ''}
     <label class="f">ملاحظة (اختياري)<input id="wNote" value="${esc(w?.note)}"></label>
     <div class="total-line"><span>المجموع</span><b id="wTotal"></b></div>
@@ -600,21 +647,34 @@ function workSheet(w, presetDoctor) {
     ${w ? `<div class="confirm" id="delWrap"><button type="button" class="btn danger" id="delBtn">حذف</button></div>` : ''}
   </form>`, sh => {
     const upd = () => { sh.querySelector('#wTotal').innerHTML = M(n2(+$('#wQty').value * +$('#wPrice').value)); };
-    const fillPrice = () => { const p = prices[$('#wType').value.trim()]; if (p != null && !$('#wPrice').dataset.touched) { $('#wPrice').value = p; upd(); } };
+    const fillPrice = () => { const p = priceFor($('#wDoc').value, $('#wType').value.trim()); if (p != null && !$('#wPrice').dataset.touched) { $('#wPrice').value = p; upd(); } };
     sh.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { $('#wType').value = b.dataset.type; $('#wPrice').dataset.touched = ''; fillPrice(); });
     $('#wType').addEventListener('input', fillPrice);
     $('#wPrice').addEventListener('input', () => { $('#wPrice').dataset.touched = '1'; upd(); });
     $('#wQty').addEventListener('input', upd); upd();
+    const pending = [];
+    const drawPhotos = () => {
+      const saved = w ? MEDIA.list.filter(m => m.kind === 'work' && m.workId === w.id) : [];
+      sh.querySelector('#wPhotos').innerHTML = saved.map(m => `<img src="${mUrl(m)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px">`).join('') +
+        pending.map(f => `<img src="${URL.createObjectURL(f)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;outline:2px dashed var(--blue)">`).join('');
+    };
+    drawPhotos();
+    sh.querySelector('#wPhotoIn').addEventListener('change', e => { pending.push(...e.target.files); e.target.value = ''; drawPhotos(); });
+    $('#wDoc').addEventListener('change', fillPrice);
     $('#wTeeth').addEventListener('input', () => { const n = teethList($('#wTeeth').value).length; if (n) { $('#wQty').value = n; upd(); } });
     sh.querySelector('#f').onsubmit = async e => {
       e.preventDefault();
       const qty = n2($('#wQty').value || 1), price = n2($('#wPrice').value);
       const data = { doctorId: $('#wDoc').value, type: $('#wType').value.trim(), qty, price, total: n2(qty * price),
+        due: $('#wDue').value || '', status: $('#wStatus').value,
         caseNo: $('#wCase').value.trim(), teeth: teethList($('#wTeeth').value).join(', '),
         patient: $('#wPatient').value.trim(), patientPhone: $('#wPPhone').value.trim(), date: $('#wDate').value || today(), note: $('#wNote').value.trim(),
         invoiceId: w?.invoiceId || '', createdAt: w?.createdAt || Date.now() };
       if (!data.doctorId || !data.type) return;
       const id = await save('works', w?.id, data);
+      for (const f of pending) await idbDo('readwrite', st => st.put({ id: newId(), kind: 'work', workId: id, doctorId: data.doctorId, name: f.name, type: f.type, blob: f, createdAt: Date.now() }));
+      if (pending.length) mediaLoad();
+      if (w && data.status === 'ready' && w.status !== 'ready') readyPrompt({ ...data, id });
       if (prices[data.type] !== price) await save('settings', 'main', { ...S.settings, prices: { ...prices, [data.type]: price } });
       closeSheet(); toast('انسجّل الشغل');
       if (!w && data.patientPhone) patientPrompt({ ...data, id });
@@ -670,6 +730,204 @@ function paySheet(p, doctorId) {
   });
 }
 
+/* ---------- lab helpers ---------- */
+const STATUSES = [['received', 'استلمناه'], ['working', 'قيد الشغل'], ['ready', 'جاهز'], ['delivered', 'تسلّم']];
+const statusLabel = k => (STATUSES.find(s => s[0] === k) || [, ''])[1];
+function priceFor(doctorId, type) {
+  if (!type) return null;
+  const last = S.works.find(w => w.doctorId === doctorId && w.type === type);
+  if (last) return last.price;
+  const p = (S.settings.prices || {})[type];
+  return p == null ? null : p;
+}
+function oldestUnpaidDays(doctorId) {
+  const st = stats(doctorId); if (st.balance <= 0) return 0;
+  let left = st.paid; const ws = st.works.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  for (const w of ws) { left -= n2(w.total); if (left < 0) return Math.floor((Date.now() - Date.parse(w.date)) / 864e5); }
+  return 0;
+}
+function readyPrompt(w) {
+  const d = docById(w.doctorId); if (!d) return;
+  const msg = `مرحباً ${docName(d)} 👋\nشغل ${w.patient ? 'المريض ' + w.patient : 'الحالة'}${w.caseNo ? ' (حالة ' + w.caseNo + ')' : ''} — ${w.type} × ${money(w.qty)} صار جاهز للتسليم ✅\n${S.settings.businessName || 'SMILE_JO'}`;
+  openSheet(`<h3>تبلّغ الدكتور إنه جاهز؟</h3><div class="invoice" style="padding:12px 14px;white-space:pre-wrap">${esc(msg)}</div>
+    <a class="btn wa full" target="_blank" rel="noopener" href="${esc(waLink(d.phone, msg))}" data-close>${WA_ICON} ابعت للدكتور</a>
+    <button class="btn ghost full" data-close>مش هلأ</button>`);
+}
+function remindPrompt(d) {
+  const st = stats(d.id), days = oldestUnpaidDays(d.id);
+  const msg = `مرحباً ${docName(d)} 🌷\nحابين نذكّرك بلطف إنه الرصيد المطلوب لـ ${S.settings.businessName || 'SMILE_JO'} هو ${money(st.balance)} ${cur()}${days > 30 ? ` (من ${days} يوم)` : ''}.\n${S.settings.payInfo ? 'طريقة الدفع: ' + S.settings.payInfo + '\n' : ''}شكراً إلك 🙏`;
+  openSheet(`<h3>تذكير بالدفع</h3><div class="invoice" style="padding:12px 14px;white-space:pre-wrap">${esc(msg)}</div>
+    <a class="btn wa full" target="_blank" rel="noopener" href="${esc(waLink(d.phone, msg))}" data-close>${WA_ICON} ابعت التذكير</a>
+    <button class="btn ghost full" data-close>سكّر</button>`);
+}
+
+/* ---------- stats (owner view) ---------- */
+let statMonth = null;
+function monthsBack(n) { const out = [], d = new Date(); d.setDate(1); for (let i = 0; i < n; i++) { out.unshift(d.toISOString().slice(0, 7)); d.setMonth(d.getMonth() - 1); } return out; }
+const mLabel = (m, opt = { month: 'long', year: 'numeric' }) => { const [y, mm] = m.split('-'); return new Date(+y, +mm - 1, 1).toLocaleDateString('ar-JO-u-nu-latn', opt); };
+const prevMonth = m => { const [y, mm] = m.split('-').map(Number); const d = new Date(y, mm - 2, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+function agg(works) {
+  const t = {}; let teeth = 0, total = 0;
+  for (const w of works) { const r = t[w.type] || (t[w.type] = { teeth: 0, cases: 0, total: 0 }); r.teeth += n2(w.qty); r.cases++; r.total += n2(w.total); teeth += n2(w.qty); total += n2(w.total); }
+  return { t, teeth, total, cases: new Set(works.map(w => w.doctorId + '|' + (w.caseNo || w.id))).size };
+}
+function delta(now, before) {
+  if (!before) return now ? '<span class="dl up">جديد</span>' : '';
+  const p = Math.round((now - before) / before * 100);
+  return p === 0 ? '<span class="dl">0%</span>' : `<span class="dl ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} <span class="num">${Math.abs(p)}%</span></span>`;
+}
+function viewStats() {
+  const m = statMonth || today().slice(0, 7), pm = prevMonth(m);
+  const W = S.works.filter(w => monthKey(w.date) === m), PW = S.works.filter(w => monthKey(w.date) === pm);
+  const a = agg(W), b = agg(PW);
+  const paid = S.payments.filter(p => monthKey(p.date) === m).reduce((x, p) => x + n2(p.amount), 0);
+  const due = S.doctors.reduce((x, d) => x + Math.max(0, stats(d.id).balance), 0);
+  const types = Object.entries(a.t).sort((x, y) => y[1].teeth - x[1].teeth);
+  const maxT = Math.max(1, ...types.map(t => t[1].teeth));
+  const docs = S.doctors.map(d => { const ws = W.filter(w => w.doctorId === d.id); return { d, teeth: ws.reduce((x, w) => x + n2(w.qty), 0), total: ws.reduce((x, w) => x + n2(w.total), 0), paid: S.payments.filter(p => p.doctorId === d.id && monthKey(p.date) === m).reduce((x, p) => x + n2(p.amount), 0), bal: stats(d.id).balance, last: S.works.find(w => w.doctorId === d.id) }; })
+    .filter(x => x.total || x.bal > 0).sort((x, y) => y.total - x.total);
+  const trend = monthsBack(6).map(k => ({ k, ...agg(S.works.filter(w => monthKey(w.date) === k)) }));
+  const maxR = Math.max(1, ...trend.map(t => t.total));
+  const quiet = S.doctors.filter(d => { const l = S.works.find(w => w.doctorId === d.id); return l && (Date.now() - Date.parse(l.date)) / 864e5 > 30; });
+  const opts = monthsBack(12).reverse().map(k => `<option value="${k}" ${k === m ? 'selected' : ''}>${mLabel(k)}</option>`).join('');
+  return `<div class="row between"><h2>إحصائيات المختبر</h2><select id="statM" class="search" style="width:auto;padding:8px 10px">${opts}</select></div>
+  <div class="kpis">
+    <div><span>الأسنان</span><b class="num">${money(a.teeth)}</b>${delta(a.teeth, b.teeth)}</div>
+    <div><span>الحالات</span><b class="num">${a.cases}</b>${delta(a.cases, b.cases)}</div>
+    <div><span>قيمة الشغل</span><b>${M(a.total)}</b>${delta(a.total, b.total)}</div>
+    <div><span>اللي قبضته</span><b>${M(paid)}</b></div>
+    <div class="wide"><span>المطلوب من الدكاترة (كل الفترات)</span><b>${M(due)}</b></div>
+  </div>
+  <h2>الخدمات — ${esc(mLabel(m, { month: 'long' }))}</h2>
+  <div class="list">${types.length ? types.map(([n, r]) => { const pv = (b.t[n] || {}).teeth || 0; return `<div class="item" style="cursor:default;display:grid;gap:6px">
+    <div class="row between"><span class="name">${esc(n)}</span><span class="amt">${M(r.total)}</span></div>
+    <div class="sbar" title="${esc(n)}: ${money(r.teeth)} سن"><i style="width:${Math.max(3, r.teeth / maxT * 100)}%"></i></div>
+    <div class="row between sub"><span><b class="num">${money(r.teeth)}</b> سن · <span class="num">${r.cases}</span> حالة · <span class="num">${Math.round(r.teeth / Math.max(1, a.teeth) * 100)}%</span> من الأسنان</span>${delta(r.teeth, pv)}</div></div>`; }).join('')
+    : `<div class="empty">ما في شغل بهالشهر</div>`}</div>
+  <h2>آخر ٦ شهور (قيمة الشغل)</h2>
+  <div class="list trend">${trend.map(t => `<div class="tcol" title="${esc(mLabel(t.k))}: ${money(t.total)} ${esc(cur())} · ${money(t.teeth)} سن"><span class="tv num">${t.total ? money(t.total) : ''}</span><i style="height:${t.total ? Math.max(4, Math.round(t.total / maxR * 110)) : 0}px"></i><span class="tl">${esc(mLabel(t.k, { month: 'short' }))}</span></div>`).join('')}</div>
+  <h2>الدكاترة هالشهر</h2>
+  <div class="list">${docs.length ? docs.map(x => `<button class="item" data-doc="${esc(x.d.id)}"><span class="av">${esc(initial(x.d.name))}</span><span class="main"><span class="name">${esc(docName(x.d))}</span><span class="sub"><span class="num">${money(x.teeth)}</span> سن · شغل ${M(x.total)} · دفع ${M(x.paid)}</span></span>${x.bal > 0 ? `<span class="pill due">باقي ${M(x.bal)}</span>` : '<span class="pill ok">خالص</span>'}</button>`).join('') : `<div class="empty">ما في نشاط</div>`}</div>
+  ${quiet.length ? `<h2>دكاترة ما بعتوا شغل من شهر</h2><div class="list">${quiet.map(d => `<button class="item" data-doc="${esc(d.id)}"><span class="av">${esc(initial(d.name))}</span><span class="main"><span class="name">${esc(docName(d))}</span><span class="sub">فرصة تتواصل معه وتشوف شو صار</span></span></button>`).join('')}</div>` : ''}`;
+}
+
+/* ---------- scan a paper (photo -> enhanced copy -> optional AI read -> review) ---------- */
+async function loadImg(file) { const img = new Image(); img.src = URL.createObjectURL(file); await img.decode(); return img; }
+async function enhanceScan(file) {
+  const img = await loadImg(file), max = 1800, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = document.createElement('canvas'); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+  const x = cv.getContext('2d'); x.drawImage(img, 0, 0, cv.width, cv.height); URL.revokeObjectURL(img.src);
+  const id = x.getImageData(0, 0, cv.width, cv.height), p = id.data;
+  for (let i = 0; i < p.length; i += 4) { let g = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]; g = Math.max(0, Math.min(255, (g - 60) * 1.6)); p[i] = p[i + 1] = p[i + 2] = g; }
+  x.putImageData(id, 0, 0);
+  return { blob: await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.85)), b64: cv.toDataURL('image/jpeg', 0.85).split(',')[1] };
+}
+async function aiRead(b64, doctor) {
+  const { default: Anthropic } = await import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.130.0/+esm');
+  const client = new Anthropic({ apiKey: S.settings.apiKey, dangerouslyAllowBrowser: true });
+  const known = [...new Set(S.works.map(w => w.type))].slice(0, 30).join('، ');
+  const schema = { type: 'object', additionalProperties: false, required: ['items'], properties: { items: { type: 'array', items: { type: 'object', additionalProperties: false,
+    required: ['date', 'caseNo', 'patient', 'type', 'teeth', 'qty', 'price'],
+    properties: { date: { type: 'string' }, caseNo: { type: 'string' }, patient: { type: 'string' }, type: { type: 'string' }, teeth: { type: 'string' }, qty: { type: 'number' }, price: { type: 'number' } } } } } };
+  const r = await client.beta.messages.create({
+    model: 'claude-opus-5-5', max_tokens: 16000,
+    betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema } },
+    messages: [{ role: 'user', content: [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+      { type: 'text', text: `هاي صورة ورقة شغل لمختبر أسنان من ${docName(doctor)}. استخرج كل سطر شغل (حالة) فيها.
+لكل سطر: date بصيغة YYYY-MM-DD (إذا ما في سنة استعمل ${today().slice(0, 4)}، وإذا ما في تاريخ اتركه فاضي)، caseNo رقم الحالة، patient اسم المريض، type نوع السن/الشغل (مثل زيركون، إيماكس، بورسلين، PFM، تاج مؤقت، طقم)، teeth أرقام الأسنان مفصولة بفواصل، qty عدد الأسنان (إذا في أرقام أسنان، عددها)، price سعر السن إذا مكتوب وإلا 0.
+${known ? 'أنواع الشغل اللي بنستعملها عادةً: ' + known + '. استعمل نفس التسمية لو نفس النوع.' : ''}
+اكتب الأسماء بالعربي متل ما مكتوبة. إذا الحقل مش واضح اتركه فاضي، لا تخمّن.` } ] }],
+  });
+  if (r.stop_reason === 'refusal') throw new Error('refusal');
+  const t = r.content.find(c => c.type === 'text');
+  return t ? (JSON.parse(t.text).items || []) : [];
+}
+function scanStart(doctorId) {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.setAttribute('capture', 'environment');
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    const d = docById(doctorId);
+    openSheet(`<h3>جاري تجهيز الورقة…</h3><p class="note" style="margin:0" id="scanMsg">لحظة</p>`);
+    let sc;
+    try { sc = await enhanceScan(f); } catch { closeSheet(); toast('ما قدرت أفتح الصورة'); return; }
+    const scanId = newId();
+    await idbDo('readwrite', st => st.put({ id: scanId, kind: 'scan', doctorId, name: `ورقة-${today()}.jpg`, type: 'image/jpeg', blob: sc.blob, createdAt: Date.now() }));
+    await mediaLoad();
+    let rows = [];
+    if (S.settings.apiKey && navigator.onLine !== false) {
+      const msg = $('#scanMsg'); if (msg) msg.textContent = 'عم بقرأ الورقة… (١٠-٣٠ ثانية)';
+      try { rows = await aiRead(sc.b64, d); } catch (e) { toast('ما قدرت أقرأها تلقائياً — عبّيها إنت'); }
+    }
+    reviewSheet(doctorId, scanId, rows);
+  };
+  inp.click();
+}
+function reviewSheet(doctorId, scanId, rows) {
+  const d = docById(doctorId), scan = MEDIA.list.find(m => m.id === scanId);
+  if (!rows.length) rows = [{ date: today(), caseNo: '', patient: '', type: '', teeth: '', qty: 1, price: 0 }];
+  const rowHtml = (r, i) => `<div class="rrow" data-i="${i}">
+    <div class="row between"><label class="row" style="gap:6px"><input type="checkbox" class="rOn" checked> <b>سطر ${i + 1}</b></label></div>
+    <div class="two"><label class="f">المريض<input class="rPatient" value="${esc(r.patient)}"></label><label class="f">رقم الحالة<input class="rCase" value="${esc(r.caseNo)}"></label></div>
+    <div class="two"><label class="f">نوع السن<input class="rType" list="typeList2" value="${esc(r.type)}"></label><label class="f">أرقام الأسنان<input class="rTeeth" value="${esc(r.teeth)}"></label></div>
+    <div class="two"><label class="f">العدد<input class="rQty" type="number" step="any" value="${esc(r.qty || 1)}"></label><label class="f">سعر السن<input class="rPrice" type="number" step="any" value="${esc(r.price || priceFor(doctorId, r.type) || '')}"></label></div>
+    <label class="f">التاريخ<input class="rDate" type="date" value="${esc(/^\d{4}-\d\d-\d\d$/.test(r.date) ? r.date : today())}"></label></div>`;
+  openSheet(`<h3>${rows.length > 1 || rows[0].type ? `لقيت ${rows.length} سطر — راجعهم` : 'عبّي الشغل من الورقة'} · ${esc(docName(d))}</h3>
+    ${scan ? `<img src="${mUrl(scan)}" alt="الورقة" style="width:100%;max-height:40vh;object-fit:contain;border-radius:12px;background:#fff">` : ''}
+    <datalist id="typeList2">${[...new Set(S.works.map(w => w.type))].map(t => `<option value="${esc(t)}">`).join('')}</datalist>
+    <div id="rRows" style="display:grid;gap:14px">${rows.map(rowHtml).join('')}</div>
+    <button class="btn ghost full" id="rAdd">+ سطر كمان</button>
+    <button class="btn primary full" id="rSave">ضيف الشغل لصفحة الدكتور</button>
+    <p class="note" style="margin:0">الورقة نفسها انحفظت بصفحة الدكتور تحت «الأوراق».</p>
+    <button class="btn ghost full" data-close>سكّر</button>`, sh => {
+    sh.querySelector('#rAdd').onclick = () => { const n = sh.querySelectorAll('.rrow').length; sh.querySelector('#rRows').insertAdjacentHTML('beforeend', rowHtml({ date: today(), qty: 1 }, n)); };
+    sh.querySelector('#rRows').addEventListener('input', e => {
+      const row = e.target.closest('.rrow'); if (!row) return;
+      if (e.target.classList.contains('rTeeth')) { const n = teethList(e.target.value).length; if (n) row.querySelector('.rQty').value = n; }
+      if (e.target.classList.contains('rType')) { const p = priceFor(doctorId, e.target.value.trim()); if (p != null && !row.querySelector('.rPrice').value) row.querySelector('.rPrice').value = p; }
+    });
+    sh.querySelector('#rSave').onclick = async () => {
+      let n = 0, nc = parseInt(nextCase(), 10);
+      for (const row of sh.querySelectorAll('.rrow')) {
+        if (!row.querySelector('.rOn').checked) continue;
+        const v = c => row.querySelector(c).value.trim();
+        if (!v('.rType')) continue;
+        const qty = n2(v('.rQty') || 1), price = n2(v('.rPrice'));
+        await save('works', null, { doctorId, type: v('.rType'), qty, price, total: n2(qty * price), caseNo: v('.rCase') || String(nc++), teeth: teethList(v('.rTeeth')).join(', '),
+          patient: v('.rPatient'), patientPhone: '', date: v('.rDate') || today(), due: '', status: 'received', note: 'من ورقة', scanId, invoiceId: '', createdAt: Date.now() + n });
+        n++;
+      }
+      closeSheet(); toast(n ? `انضاف ${n} شغل` : 'ما انضاف إشي — لازم نوع السن');
+    };
+  });
+}
+
+/* ---------- demo invoice (nothing saved) ---------- */
+async function demoInvoice() {
+  const d = { id: 'demo', name: 'أحمد الخطيب (تجريبي)', clinic: 'عيادة الابتسامة — عبدون', phone: '' };
+  const ws = [
+    { caseNo: '1021', patient: 'سارة محمود', type: 'زيركون', teeth: '11, 12, 21', qty: 3, price: 45, total: 135, date: today() },
+    { caseNo: '1022', patient: 'خالد العمري', type: 'إيماكس', teeth: '14', qty: 1, price: 60, total: 60, date: today() },
+    { caseNo: '1023', patient: 'رنا يوسف', type: 'بورسلين على معدن', teeth: '36, 37', qty: 2, price: 30, total: 60, date: today() }];
+  const inv = { number: 'تجريبي', date: today(), itemsTotal: 255, prevBalance: 40, due: 295 };
+  openSheet(`<h3>فاتورة تجريبية</h3><p class="note" style="margin:0">هيك بتوصل للدكتور. البيانات مثال وما انحفظ إشي.</p>
+    <img id="dImg" alt="فاتورة تجريبية" style="width:100%;border-radius:12px;border:1px solid var(--line);min-height:240px;background:var(--bg)">
+    <button class="btn wa full" id="dShare" disabled>${WA_ICON} جرّب تبعتها لحالك</button>
+    <button class="btn ghost full" data-close>سكّر</button>`, async sh => {
+    const cv = await drawInvoice(inv, d, ws, demoPhotos());
+    sh.querySelector('#dImg').src = cv.toDataURL('image/png');
+    const file = await cvFile(cv, 'فاتورة-تجريبية.png'); const b = sh.querySelector('#dShare'); b.disabled = false; b.onclick = () => shareImage(file);
+  });
+}
+function demoPhotos() {
+  const c = document.createElement('canvas'); c.width = 300; c.height = 220; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 220); g.addColorStop(0, '#f6d7d0'); g.addColorStop(1, '#e8a99c'); x.fillStyle = g; x.fillRect(0, 0, 300, 220);
+  for (let i = 0; i < 6; i++) { x.fillStyle = '#fbfaf5'; x.beginPath(); x.roundRect(22 + i * 44, 60, 38, 80, 12); x.fill(); }
+  x.fillStyle = '#7a4b45'; x.font = '600 16px sans-serif'; x.textAlign = 'center'; x.fillText('صورة مثال', 150, 190);
+  return [{ img: c, label: 'سارة محمود · زيركون' }];
+}
+
 /* ---------- branded images (canvas) ---------- */
 const teethList = v => String(v || '').split(/[^\d]+/).filter(Boolean);
 function nextCase() { const max = S.works.reduce((a, w) => Math.max(a, parseInt(w.caseNo, 10) || 0), 0); return String(max ? max + 1 : 1); }
@@ -706,11 +964,12 @@ function docFoot(x, W, M, Y) {
   txt(x, [s.businessName || 'SMILE_JO', s.phone].filter(Boolean).join('  ·  '), W / 2, Y + 92, { font: `400 22px ${FB}`, color: C.muted, align: 'center' });
   x.fillStyle = C.yellow; x.fillRect(0, Y + 130, W, 14);
 }
-async function drawInvoice(inv, d, works) {
+async function drawInvoice(inv, d, works, photos = []) {
   await prepDraw();
   const W = 1240, M = 64, rowH = 84, c = cur(), s = S.settings;
   const tableY = 420, rowsY = tableY + 64, endRows = rowsY + Math.max(1, works.length) * rowH;
-  const H = endRows + 330 + 160;
+  const ph = photos.length ? 90 + Math.ceil(photos.length / 4) * 300 : 0;
+  const H = endRows + (ph ? 280 : 330) + ph + 160;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const x = cv.getContext('2d'); x.direction = 'rtl';
   x.fillStyle = C.white; x.fillRect(0, 0, W, H);
@@ -751,8 +1010,27 @@ async function drawInvoice(inv, d, works) {
     txt(x, 'طريقة الدفع', W - M - 28, tY + 46, { font: `600 24px ${FD}`, color: C.blue });
     txt(x, s.payInfo, W - M - 28, tY + 96, { font: `500 24px ${FB}`, max: 500 });
   }
+  if (photos.length) {
+    let py = endRows + 280;
+    txt(x, 'صور الحالات', W - M, py + 40, { font: `600 30px ${FD}` });
+    const cw = (W - 2 * M - 3 * 20) / 4, chh = 230;
+    photos.forEach((p, i) => {
+      const col = i % 4, rw = Math.floor(i / 4), X = W - M - (col + 1) * cw - col * 20, Y = py + 70 + rw * 300;
+      const iw = p.img.naturalWidth || p.img.width, ih = p.img.naturalHeight || p.img.height, k = Math.max(cw / iw, chh / ih);
+      x.save(); x.beginPath(); x.roundRect ? x.roundRect(X, Y, cw, chh, 16) : x.rect(X, Y, cw, chh); x.clip();
+      x.drawImage(p.img, X + (cw - iw * k) / 2, Y + (chh - ih * k) / 2, iw * k, ih * k); x.restore();
+      txt(x, p.label, X + cw - 6, Y + chh + 34, { font: `500 20px ${FB}`, color: C.muted, max: cw - 12 });
+    });
+  }
   docFoot(x, W, M, H - 160);
   return cv;
+}
+async function workPhotos(works) {
+  const out = [];
+  for (const w of works) for (const m of MEDIA.list.filter(m => m.kind === 'work' && m.workId === w.id)) {
+    try { out.push({ img: await loadImg(m.blob), label: [w.patient, w.type].filter(Boolean).join(' · ') }); } catch {}
+  }
+  return out;
 }
 async function drawReport(d, month) {
   await prepDraw();
@@ -882,7 +1160,9 @@ function invoiceSheet(doctorId, existing) {
   }
   const text = existing?.text || invoiceText(inv, d, works);
   const noPhone = !waNumber(d.phone);
+  const hasPh = works.some(w => MEDIA.list.some(m => m.kind === 'work' && m.workId === w.id));
   openSheet(`<h3>${existing ? 'فاتورة قديمة' : works.length ? 'فاتورة جديدة' : 'تذكير بالحساب'}</h3>
+    ${hasPh ? `<label class="row" style="gap:8px"><input type="checkbox" id="invPh" checked> حط صور الأسنان بالفاتورة</label>` : ''}
     <img id="invImg" alt="الفاتورة" style="width:100%;border-radius:12px;border:1px solid var(--line);min-height:240px;background:var(--bg)">
     <button class="btn wa full" id="imgBtn" disabled>${WA_ICON} ابعت الفاتورة كصورة</button>
     <p class="note" style="margin:0">بيفتحلك المشاركة ← واتساب ← اختار الدكتور.</p>
@@ -902,7 +1182,8 @@ function invoiceSheet(doctorId, existing) {
     };
     sh.querySelector('#waBtn').addEventListener('click', () => { persist().catch(() => {}); });
     let file = null; const ib = sh.querySelector('#imgBtn');
-    drawInvoice(inv, d, works).then(async cv => { sh.querySelector('#invImg').src = cv.toDataURL('image/png'); file = await cvFile(cv, `فاتورة-${inv.number}.png`); ib.disabled = false; });
+    const paint = async () => { ib.disabled = true; const usePh = hasPh && sh.querySelector('#invPh').checked; const cv = await drawInvoice(inv, d, works, usePh ? await workPhotos(works) : []); sh.querySelector('#invImg').src = cv.toDataURL('image/png'); file = await cvFile(cv, `فاتورة-${inv.number}.png`); ib.disabled = false; };
+    paint(); if (hasPh) sh.querySelector('#invPh').addEventListener('change', paint);
     ib.onclick = () => { if (!file) return; shareImage(file, `فاتورة رقم ${inv.number} — المطلوب ${money(Math.max(0, inv.due))} ${cur()}`); persist().catch(() => {}); };
     sh.querySelector('#cpBtn').onclick = () => { copyText(text, sh.querySelector('#cpTxt')); persist().catch(() => {}); };
     const del = sh.querySelector('#delBtn');
@@ -921,9 +1202,10 @@ document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t || t.closest('.sheet')) return;
   if (t.dataset.go) { route = { name: t.dataset.go }; render(); window.scrollTo(0, 0); return; }
   if (t.id === 'fab') { workSheet(null, route.name === 'doctor' ? route.id : null); return; }
-  if (t.id === 'backBtn') { route = { name: route.name === 'invoices' ? 'home' : 'doctors' }; render(); return; }
+  if (t.id === 'backBtn') { route = { name: route.name === 'doctor' ? 'doctors' : 'settings' }; render(); return; }
   if (t.dataset.doc) { route = { name: 'doctor', id: t.dataset.doc, tab: 'works' }; render(); window.scrollTo(0, 0); return; }
   if (t.dataset.tab) { route.tab = t.dataset.tab; render(); return; }
+  if (t.dataset.scan) { const m = MEDIA.list.find(x => x.id === t.dataset.scan); if (m) openSheet(`<h3>ورقة</h3><img src="${mUrl(m)}" alt="" style="width:100%;border-radius:12px;background:#fff"><button class="btn primary full" id="sRe">عبّي منها شغل</button><button class="btn ghost full" data-close>سكّر</button>`, sh => { sh.querySelector('#sRe').onclick = () => reviewSheet(m.doctorId, m.id, []); }); return; }
   if (t.dataset.mfilter) { MEDIA.filter = t.dataset.mfilter; render(); return; }
   if (t.dataset.media) {
     const m = MEDIA.list.find(x => x.id === t.dataset.media); if (!m) return;
@@ -942,17 +1224,20 @@ document.addEventListener('click', e => {
   if (a === 'invoice') invoiceSheet(route.id);
   if (a === 'backup') exportBackup();
   if (a === 'report') reportSheet(route.id);
+  if (a === 'scan') scanStart(route.id);
+  if (a === 'remind') remindPrompt(docById(route.id));
+  if (a === 'demo') demoInvoice();
   if (a === 'mselect') { MEDIA.selecting = !MEDIA.selecting; MEDIA.sel.clear(); render(); }
   if (a === 'mshareSel') { const items = MEDIA.list.filter(m => MEDIA.sel.has(m.id)); shareFiles(items, items.map(m => m.caption).filter(Boolean).join('\n')); }
 });
-document.addEventListener('change', e => { if (e.target.id === 'mFile' && e.target.files.length) { addMedia([...e.target.files]); e.target.value = ''; return; }
+document.addEventListener('change', e => { if (e.target.id === 'statM') { statMonth = e.target.value; render(); return; } if (e.target.id === 'mFile' && e.target.files.length) { addMedia([...e.target.files]); e.target.value = ''; return; }
  if (e.target.id === 'impFile' && e.target.files[0]) { importBackup(e.target.files[0]); e.target.value = ''; } });
 document.addEventListener('input', e => { if (e.target.id === 'q') { searchQ = e.target.value; $('#docList').innerHTML = doctorRows(); } });
 document.addEventListener('submit', async e => {
   if (e.target.id !== 'setForm') return;
   e.preventDefault();
   await save('settings', 'main', { ...S.settings, businessName: $('#sName').value.trim(), phone: $('#sPhone').value.trim(),
-    currency: $('#sCur').value.trim(), payInfo: $('#sPayInfo').value.trim(), footer: $('#sFooter').value.trim(), patientMsg: $('#sPMsg').value.trim() });
+    currency: $('#sCur').value.trim(), payInfo: $('#sPayInfo').value.trim(), footer: $('#sFooter').value.trim(), patientMsg: $('#sPMsg').value.trim(), apiKey: $('#sKey').value.trim() });
   toast('انحفظت الإعدادات');
 });
 
