@@ -357,7 +357,7 @@ function workRow(w, showDoc = true) {
   const inv = S.invoices.find(i => i.id === w.invoiceId);
   const tag = w.invoiceId ? `<span class="pill inv">فاتورة ${esc(inv ? inv.number : '')}</span>` : `<span class="pill due">مش مفوتر</span>`;
   const qty = n2(w.qty) > 1 ? ` × ${money(w.qty)}` : '';
-  const rest = [showDoc ? docName(d) : '', w.patient ? 'المريض: ' + w.patient : ''].filter(Boolean).map(x => ' · ' + esc(x)).join('');
+  const rest = [w.caseNo ? 'حالة ' + w.caseNo : '', showDoc ? docName(d) : '', w.patient ? 'المريض: ' + w.patient : ''].filter(Boolean).map(x => ' · ' + esc(x)).join('');
   return `<button class="item" data-work="${esc(w.id)}"><span class="main"><span class="name">${esc(w.type)}${qty}</span><span class="sub"><span class="num">${esc(shortDate(w.date))}</span>${rest}</span></span>
     <span style="display:grid;justify-items:end;gap:2px"><span class="amt">${M(w.total)}</span>${tag}</span></button>`;
 }
@@ -389,6 +389,7 @@ function viewDoctor() {
     </div>
     <button class="btn wa full" data-act="invoice">${WA_ICON} ابعت فاتورة على الواتس${st.open.length ? ` (${st.open.length} شغل جديد)` : ''}</button>
     <div class="actions"><button class="btn primary" data-act="newWork">+ سجّل شغل</button><button class="btn ghost" data-act="newPay">سجّل دفعة</button></div>
+    <button class="btn ghost full" data-act="report">تقرير الشهر للدكتور (صورة)</button>
   </section>
   <div class="tabs" role="tablist">
     <button role="tab" data-tab="works" aria-selected="${tab === 'works'}">الشغل</button>
@@ -576,11 +577,15 @@ function workSheet(w, presetDoctor) {
   openSheet(`<h3>${w ? 'تعديل الشغل' : 'شغل جديد'}</h3>
   <form id="f" style="display:grid;gap:12px">
     <label class="f">الدكتور<select id="wDoc" required><option value="">— اختار —</option>${S.doctors.map(d => `<option value="${esc(d.id)}" ${d.id === docId ? 'selected' : ''}>${esc(docName(d))}</option>`).join('')}</select></label>
-    <label class="f">شو الشغل<input id="wType" required list="typeList" placeholder="مثلاً: ريتينر" value="${esc(w?.type)}"><datalist id="typeList">${Object.keys(prices).map(k => `<option value="${esc(k)}">`).join('')}</datalist></label>
+    <div class="two">
+      <label class="f">رقم الحالة<input id="wCase" inputmode="numeric" value="${esc(w ? (w.caseNo || '') : nextCase())}"></label>
+      <label class="f">أرقام الأسنان (اختياري)<input id="wTeeth" inputmode="numeric" placeholder="11, 12, 21" value="${esc(w?.teeth)}"></label>
+    </div>
+    <label class="f">نوع السن / الشغل<input id="wType" required list="typeList" placeholder="مثلاً: زيركون" value="${esc(w?.type)}"><datalist id="typeList">${Object.keys(prices).map(k => `<option value="${esc(k)}">`).join('')}</datalist></label>
     ${types.length ? `<div class="chips">${types.map(t => `<button type="button" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div>` : ''}
     <div class="two">
-      <label class="f">العدد<input id="wQty" type="number" inputmode="decimal" min="0" step="any" value="${esc(w?.qty ?? 1)}"></label>
-      <label class="f">سعر الواحد (${esc(cur())})<input id="wPrice" type="number" inputmode="decimal" min="0" step="any" required value="${esc(w?.price ?? '')}"></label>
+      <label class="f">عدد الأسنان<input id="wQty" type="number" inputmode="decimal" min="0" step="any" value="${esc(w?.qty ?? 1)}"></label>
+      <label class="f">سعر السن (${esc(cur())})<input id="wPrice" type="number" inputmode="decimal" min="0" step="any" required value="${esc(w?.price ?? '')}"></label>
     </div>
     <div class="two">
       <label class="f">اسم المريض (اختياري)<input id="wPatient" value="${esc(w?.patient)}"></label>
@@ -600,10 +605,12 @@ function workSheet(w, presetDoctor) {
     $('#wType').addEventListener('input', fillPrice);
     $('#wPrice').addEventListener('input', () => { $('#wPrice').dataset.touched = '1'; upd(); });
     $('#wQty').addEventListener('input', upd); upd();
+    $('#wTeeth').addEventListener('input', () => { const n = teethList($('#wTeeth').value).length; if (n) { $('#wQty').value = n; upd(); } });
     sh.querySelector('#f').onsubmit = async e => {
       e.preventDefault();
       const qty = n2($('#wQty').value || 1), price = n2($('#wPrice').value);
       const data = { doctorId: $('#wDoc').value, type: $('#wType').value.trim(), qty, price, total: n2(qty * price),
+        caseNo: $('#wCase').value.trim(), teeth: teethList($('#wTeeth').value).join(', '),
         patient: $('#wPatient').value.trim(), patientPhone: $('#wPPhone').value.trim(), date: $('#wDate').value || today(), note: $('#wNote').value.trim(),
         invoiceId: w?.invoiceId || '', createdAt: w?.createdAt || Date.now() };
       if (!data.doctorId || !data.type) return;
@@ -663,6 +670,165 @@ function paySheet(p, doctorId) {
   });
 }
 
+/* ---------- branded images (canvas) ---------- */
+const teethList = v => String(v || '').split(/[^\d]+/).filter(Boolean);
+function nextCase() { const max = S.works.reduce((a, w) => Math.max(a, parseInt(w.caseNo, 10) || 0), 0); return String(max ? max + 1 : 1); }
+const C = { blue: '#014FC9', yellow: '#F9C03C', dark: '#23232A', muted: '#6b7080', line: '#E3E6EE', soft: '#F3F5FB', white: '#FFFFFF' };
+const FD = '"Readex Pro","IBM Plex Sans Arabic",sans-serif', FB = '"IBM Plex Sans Arabic","Readex Pro",sans-serif';
+let _logoImg = null;
+async function prepDraw() {
+  try { await Promise.all(['700 40px "Readex Pro"', '600 40px "Readex Pro"', '400 20px "IBM Plex Sans Arabic"', '600 20px "IBM Plex Sans Arabic"'].map(f => document.fonts.load(f, 'فاتورة 123'))); } catch {}
+  if (!_logoImg) { _logoImg = new Image(); _logoImg.src = $('#logo').src; try { await _logoImg.decode(); } catch {} }
+}
+function fit(x, t, w) { t = String(t ?? ''); if (x.measureText(t).width <= w) return t; while (t.length > 1 && x.measureText(t + '…').width > w) t = t.slice(0, -1); return t + '…'; }
+function rr(x, X, Y, w, h, r, fill) { x.beginPath(); x.roundRect ? x.roundRect(X, Y, w, h, r) : x.rect(X, Y, w, h); x.fillStyle = fill; x.fill(); }
+function txt(x, t, X, Y, { font, color = C.dark, align = 'right', max } = {}) { x.font = font; x.fillStyle = color; x.textAlign = align; x.fillText(max ? fit(x, t, max) : String(t), X, Y); }
+function docHead(x, W, M, title, lines) {
+  x.fillStyle = C.blue; x.fillRect(0, 0, W, 16);
+  const lh = 150, lw = _logoImg && _logoImg.naturalWidth ? lh * _logoImg.naturalWidth / _logoImg.naturalHeight : 0;
+  if (lw) x.drawImage(_logoImg, W - M - lw, 52, lw, lh);
+  const s = S.settings;
+  txt(x, s.businessName || 'SMILE_JO', W - M - lw - 26, 112, { font: `700 36px ${FD}` });
+  if (s.phone) txt(x, s.phone, W - M - lw - 26, 154, { font: `400 26px ${FB}`, color: C.muted });
+  txt(x, title, M, 112, { font: `700 66px ${FD}`, color: C.blue, align: 'left' });
+  lines.forEach((l, i) => txt(x, l, M, 160 + i * 38, { font: `500 27px ${FB}`, align: 'left' }));
+}
+function docTo(x, W, M, Y, d, side) {
+  rr(x, M, Y, W - 2 * M, 120, 18, C.soft);
+  txt(x, 'إلى', W - M - 30, Y + 42, { font: `500 22px ${FB}`, color: C.muted });
+  txt(x, docName(d), W - M - 30, Y + 88, { font: `700 36px ${FD}`, max: 560 });
+  if (d.clinic) txt(x, d.clinic, W - M - 30 - Math.min(560, (x.font = `700 36px ${FD}`, x.measureText(docName(d)).width)) - 20, Y + 88, { font: `400 24px ${FB}`, color: C.muted, max: 260 });
+  side.forEach((l, i) => txt(x, l, M + 30, Y + 50 + i * 40, { font: `600 25px ${FB}`, align: 'left' }));
+}
+function docFoot(x, W, M, Y) {
+  const s = S.settings;
+  txt(x, s.footer || 'شكراً لثقتكم', W / 2, Y + 50, { font: `600 30px ${FD}`, align: 'center' });
+  txt(x, [s.businessName || 'SMILE_JO', s.phone].filter(Boolean).join('  ·  '), W / 2, Y + 92, { font: `400 22px ${FB}`, color: C.muted, align: 'center' });
+  x.fillStyle = C.yellow; x.fillRect(0, Y + 130, W, 14);
+}
+async function drawInvoice(inv, d, works) {
+  await prepDraw();
+  const W = 1240, M = 64, rowH = 84, c = cur(), s = S.settings;
+  const tableY = 420, rowsY = tableY + 64, endRows = rowsY + Math.max(1, works.length) * rowH;
+  const H = endRows + 330 + 160;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d'); x.direction = 'rtl';
+  x.fillStyle = C.white; x.fillRect(0, 0, W, H);
+  docHead(x, W, M, 'فاتورة', [`رقم الفاتورة: ${inv.number}`, `التاريخ: ${fmtDate(inv.date)}`]);
+  const teeth = works.reduce((a, w) => a + n2(w.qty), 0);
+  docTo(x, W, M, 250, d, [`عدد الحالات: ${works.length}`, `عدد الأسنان: ${money(teeth)}`]);
+  // columns, right to left
+  const cols = [['#', 50, 'c'], ['رقم الحالة', 130, 'c'], ['التاريخ', 130, 'c'], ['اسم المريض', 220, 'r'], ['نوع السن', 230, 'r'], ['عدد الأسنان', 100, 'c'], ['سعر السن', 110, 'c'], ['المجموع', 142, 'c']];
+  rr(x, M, tableY, W - 2 * M, 64, 12, C.blue);
+  let cx = W - M;
+  const pos = cols.map(([h, w, a]) => { const p = { r: cx, w, a }; cx -= w; return p; });
+  cols.forEach(([h], i) => { const p = pos[i]; txt(x, h, p.a === 'c' ? p.r - p.w / 2 : p.r - 14, tableY + 41, { font: `600 22px ${FB}`, color: C.white, align: p.a === 'c' ? 'center' : 'right' }); });
+  works.forEach((w, i) => {
+    const y = rowsY + i * rowH;
+    if (i % 2) { x.fillStyle = C.soft; x.fillRect(M, y, W - 2 * M, rowH); }
+    const cells = [String(i + 1), w.caseNo || '—', fmtDate(w.date).replace(/\/(\d\d)(\d\d)$/, '/$2'), w.patient || '—', w.type, money(w.qty), money(w.price), money(w.total)];
+    cells.forEach((v, j) => {
+      const p = pos[j], center = p.a === 'c', X = center ? p.r - p.w / 2 : p.r - 14;
+      const bold = j === 7, y0 = j === 4 && w.teeth ? y + 38 : y + 52;
+      txt(x, v, X, y0, { font: `${bold ? 700 : 500} ${j === 7 ? 25 : 23}px ${bold ? FD : FB}`, align: center ? 'center' : 'right', max: p.w - 20 });
+      if (j === 4 && w.teeth) txt(x, 'الأسنان: ' + teethList(w.teeth).join('، '), X, y + 68, { font: `400 18px ${FB}`, color: C.muted, max: p.w - 20 });
+    });
+    x.fillStyle = C.line; x.fillRect(M, y + rowH - 1, W - 2 * M, 1);
+  });
+  if (!works.length) txt(x, 'تذكير بالرصيد المطلوب', W / 2, rowsY + 52, { font: `500 24px ${FB}`, color: C.muted, align: 'center' });
+  // totals (left) + payment info (right)
+  const tY = endRows + 36, tw = 470;
+  let ly = tY;
+  const tl = (a, b, col = C.dark) => { txt(x, a, M + tw - 24, ly + 34, { font: `500 25px ${FB}`, color: C.muted }); txt(x, b, M + 24, ly + 34, { font: `600 27px ${FD}`, color: col, align: 'left' }); ly += 52; };
+  tl('مجموع الشغل', `${money(inv.itemsTotal)} ${c}`);
+  if (n2(inv.prevBalance) > 0) tl('رصيد سابق', `${money(inv.prevBalance)} ${c}`);
+  if (n2(inv.prevBalance) < 0) tl('رصيد إلك عنا', `- ${money(-inv.prevBalance)} ${c}`, '#1c8a4f');
+  rr(x, M, ly + 8, tw, 96, 16, C.blue);
+  txt(x, 'المطلوب', M + tw - 26, ly + 68, { font: `600 28px ${FD}`, color: C.white });
+  txt(x, `${money(Math.max(0, inv.due))} ${c}`, M + 26, ly + 70, { font: `700 40px ${FD}`, color: C.yellow, align: 'left' });
+  if (s.payInfo) {
+    rr(x, W - M - 560, tY, 560, 150, 16, C.soft);
+    txt(x, 'طريقة الدفع', W - M - 28, tY + 46, { font: `600 24px ${FD}`, color: C.blue });
+    txt(x, s.payInfo, W - M - 28, tY + 96, { font: `500 24px ${FB}`, max: 500 });
+  }
+  docFoot(x, W, M, H - 160);
+  return cv;
+}
+async function drawReport(d, month) {
+  await prepDraw();
+  const works = S.works.filter(w => w.doctorId === d.id && monthKey(w.date) === month);
+  const pays = S.payments.filter(p => p.doctorId === d.id && monthKey(p.date) === month);
+  const byType = {};
+  works.forEach(w => { const t = byType[w.type] || (byType[w.type] = { n: 0, total: 0 }); t.n += n2(w.qty); t.total += n2(w.total); });
+  const types = Object.entries(byType).sort((a, b) => b[1].n - a[1].n);
+  const W = 1240, M = 64, c = cur();
+  const H = 640 + 70 + Math.max(1, types.length) * 74 + 200 + 160;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d'); x.direction = 'rtl';
+  x.fillStyle = C.white; x.fillRect(0, 0, W, H);
+  const [yy, mm] = month.split('-');
+  const mName = new Date(+yy, +mm - 1, 1).toLocaleDateString('ar-JO-u-nu-latn', { month: 'long', year: 'numeric' });
+  docHead(x, W, M, 'تقرير شهري', [mName]);
+  docTo(x, W, M, 250, d, []);
+  const teeth = works.reduce((a, w) => a + n2(w.qty), 0), total = works.reduce((a, w) => a + n2(w.total), 0);
+  const cases = new Set(works.map(w => w.caseNo || w.id)).size, bal = stats(d.id).balance;
+  const tiles = [['عدد الحالات', String(cases)], ['عدد الأسنان', money(teeth)], ['مجموع الشغل', `${money(total)} ${c}`], ['المطلوب للآن', `${money(Math.max(0, bal))} ${c}`]];
+  const tw = (W - 2 * M - 3 * 20) / 4;
+  tiles.forEach(([l, v], i) => {
+    const X = W - M - (i + 1) * tw - i * 20, Y = 410;
+    rr(x, X, Y, tw, 170, 18, i === 3 ? C.blue : C.soft);
+    txt(x, l, X + tw - 22, Y + 50, { font: `500 23px ${FB}`, color: i === 3 ? '#cfe0ff' : C.muted });
+    txt(x, v, X + tw - 22, Y + 120, { font: `700 ${v.length > 9 ? 34 : 44}px ${FD}`, color: i === 3 ? C.yellow : C.dark, max: tw - 40 });
+  });
+  let y = 640;
+  txt(x, 'الشغل حسب نوع السن', W - M, y, { font: `600 30px ${FD}` });
+  y += 34;
+  const maxN = Math.max(1, ...types.map(t => t[1].n)), barW = 560;
+  types.forEach(([name, t]) => {
+    txt(x, name, W - M, y + 44, { font: `600 26px ${FB}`, max: 280 });
+    const bw = Math.max(8, barW * t.n / maxN), bx = W - M - 300 - bw;
+    rr(x, W - M - 300 - barW, y + 20, barW, 34, 17, C.soft);
+    rr(x, bx, y + 20, bw, 34, 17, C.blue);
+    txt(x, `${money(t.n)} سن`, W - M - 300 - barW - 20, y + 46, { font: `600 24px ${FD}`, align: 'right' });
+    txt(x, `${money(t.total)} ${c}`, M, y + 46, { font: `500 22px ${FB}`, color: C.muted, align: 'left' });
+    y += 74;
+  });
+  if (!types.length) { txt(x, 'ما في شغل مسجّل بهالشهر', W / 2, y + 46, { font: `500 26px ${FB}`, color: C.muted, align: 'center' }); y += 74; }
+  const paid = pays.reduce((a, p) => a + n2(p.amount), 0);
+  y += 30;
+  rr(x, M, y, W - 2 * M, 120, 18, '#FFF6DF');
+  txt(x, `شكراً لثقتك ${docName(d)} — ${cases} حالة و${money(teeth)} سن هالشهر`, W - M - 30, y + 54, { font: `600 28px ${FD}`, max: W - 2 * M - 60 });
+  txt(x, paid ? `المدفوع هالشهر: ${money(paid)} ${c}` : 'بنفتخر إنا جزء من ابتسامات مرضاك', W - M - 30, y + 96, { font: `400 23px ${FB}`, color: C.muted });
+  docFoot(x, W, M, H - 160);
+  return cv;
+}
+const cvFile = (cv, name) => new Promise(r => cv.toBlob(b => r(new File([b], name, { type: 'image/png' })), 'image/png'));
+function shareImage(file, text) {
+  if (text && navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file] }).catch(() => {}); return true; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); return false;
+}
+function reportSheet(doctorId) {
+  const d = docById(doctorId); if (!d) return;
+  let file = null;
+  openSheet(`<h3>تقرير شهري — ${esc(docName(d))}</h3>
+    <label class="f">الشهر<input id="rMonth" type="month" value="${today().slice(0, 7)}"></label>
+    <img id="rImg" alt="التقرير" style="width:100%;border-radius:12px;border:1px solid var(--line);min-height:200px;background:var(--bg)">
+    <button class="btn wa full" id="rShare" disabled>${WA_ICON} ابعت التقرير للدكتور</button>
+    <p class="note" style="margin:0">بيفتحلك المشاركة ← واتساب ← اختار الدكتور.</p>
+    <button class="btn ghost full" data-close>سكّر</button>`, sh => {
+    const img = sh.querySelector('#rImg'), btn = sh.querySelector('#rShare');
+    const make = async () => {
+      btn.disabled = true; const m = sh.querySelector('#rMonth').value || today().slice(0, 7);
+      const cv = await drawReport(d, m); img.src = cv.toDataURL('image/png');
+      file = await cvFile(cv, `تقرير-${m}-${d.name}.png`); btn.disabled = false;
+    };
+    sh.querySelector('#rMonth').addEventListener('change', make); make();
+    btn.onclick = () => { if (file) shareImage(file); };
+  });
+}
+
 /* ---------- invoice ---------- */
 function invoiceText(inv, d, works) {
   const s = S.settings, c = cur();
@@ -675,8 +841,8 @@ function invoiceText(inv, d, works) {
   if (works.length) {
     L.push('*تفاصيل الشغل:*');
     works.forEach((w, i) => {
-      const q = n2(w.qty) > 1 ? ` (${money(w.qty)} × ${money(w.price)})` : '';
-      L.push(`${i + 1}. ${shortDate(w.date)} — ${w.type}${q}${w.patient ? ' — ' + w.patient : ''}: ${money(w.total)} ${c}`);
+      const q = ` (${money(w.qty)} سن × ${money(w.price)})`;
+      L.push(`${i + 1}. ${shortDate(w.date)}${w.caseNo ? ' — حالة ' + w.caseNo : ''}${w.patient ? ' — ' + w.patient : ''} — ${w.type}${q}${w.teeth ? ' [' + w.teeth + ']' : ''}: ${money(w.total)} ${c}`);
     });
     L.push('');
     L.push(`مجموع الشغل: ${money(inv.itemsTotal)} ${c}`);
@@ -717,9 +883,10 @@ function invoiceSheet(doctorId, existing) {
   const text = existing?.text || invoiceText(inv, d, works);
   const noPhone = !waNumber(d.phone);
   openSheet(`<h3>${existing ? 'فاتورة قديمة' : works.length ? 'فاتورة جديدة' : 'تذكير بالحساب'}</h3>
-    ${invoiceHtml(inv, d, works)}
-    ${noPhone ? `<p class="note" style="margin:0">ما في رقم واتس لهالدكتور — الواتس رح يفتح وتختار المحادثة بإيدك.</p>` : ''}
-    <a class="btn wa full" id="waBtn" href="${esc(waLink(d.phone, text))}" target="_blank" rel="noopener">${WA_ICON} افتح الواتس وابعتها</a>
+    <img id="invImg" alt="الفاتورة" style="width:100%;border-radius:12px;border:1px solid var(--line);min-height:240px;background:var(--bg)">
+    <button class="btn wa full" id="imgBtn" disabled>${WA_ICON} ابعت الفاتورة كصورة</button>
+    <p class="note" style="margin:0">بيفتحلك المشاركة ← واتساب ← اختار الدكتور.</p>
+    <a class="btn ghost full" id="waBtn" href="${esc(waLink(d.phone, text))}" target="_blank" rel="noopener">ابعتها كنص على الواتس${noPhone ? '' : ''}</a>
     <button class="btn ghost full" id="cpBtn">انسخ نص الفاتورة</button>
     <textarea id="cpTxt" hidden readonly rows="8" style="width:100%;border-radius:12px;padding:10px;border:1px solid var(--line);background:var(--bg)">${esc(text)}</textarea>
     <p class="note" style="margin:0">${existing ? 'بتقدر تعيد بعتها بأي وقت.' : 'لما تضغط «افتح الواتس» الفاتورة بتنحفظ والشغل بيتعلّم إنه مفوتر.'}</p>
@@ -734,6 +901,9 @@ function invoiceSheet(doctorId, existing) {
       toast('انحفظت الفاتورة ' + inv.number);
     };
     sh.querySelector('#waBtn').addEventListener('click', () => { persist().catch(() => {}); });
+    let file = null; const ib = sh.querySelector('#imgBtn');
+    drawInvoice(inv, d, works).then(async cv => { sh.querySelector('#invImg').src = cv.toDataURL('image/png'); file = await cvFile(cv, `فاتورة-${inv.number}.png`); ib.disabled = false; });
+    ib.onclick = () => { if (!file) return; shareImage(file, `فاتورة رقم ${inv.number} — المطلوب ${money(Math.max(0, inv.due))} ${cur()}`); persist().catch(() => {}); };
     sh.querySelector('#cpBtn').onclick = () => { copyText(text, sh.querySelector('#cpTxt')); persist().catch(() => {}); };
     const del = sh.querySelector('#delBtn');
     if (del) del.onclick = () => {
@@ -771,6 +941,7 @@ document.addEventListener('click', e => {
   if (a === 'newPay') paySheet(null, route.id);
   if (a === 'invoice') invoiceSheet(route.id);
   if (a === 'backup') exportBackup();
+  if (a === 'report') reportSheet(route.id);
   if (a === 'mselect') { MEDIA.selecting = !MEDIA.selecting; MEDIA.sel.clear(); render(); }
   if (a === 'mshareSel') { const items = MEDIA.list.filter(m => MEDIA.sel.has(m.id)); shareFiles(items, items.map(m => m.caption).filter(Boolean).join('\n')); }
 });
